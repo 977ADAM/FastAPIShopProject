@@ -4,7 +4,7 @@ from typing import List, Union
 class Settings(BaseSettings):
     app_name: str = "FastAPI Shop"
     debug: bool = True
-    database_url: str = "sqlite:////app/shop.db"
+    database_url: str = "sqlite:///./shop.db"
     cors_origins: Union[List[str], str] = [
         "http://localhost:5173",
         "http://localhost:3000",
