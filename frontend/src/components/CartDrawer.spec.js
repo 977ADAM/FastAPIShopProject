@@ -1,0 +1,47 @@
+import { mount } from '@vue/test-utils'
+import { createTestingPinia } from '@pinia/testing'
+import { describe, it, expect, vi } from 'vitest'
+import CartDrawer from '@/components/CartDrawer.vue'
+import { useUiStore } from '@/stores/ui'
+import { useCartStore } from '@/stores/cart'
+
+function mountDrawer() {
+  return mount(CartDrawer, {
+    global: {
+      plugins: [createTestingPinia({ createSpy: vi.fn, stubActions: false })],
+      stubs: { RouterLink: { template: '<a><slot /></a>' } },
+    },
+  })
+}
+
+describe('CartDrawer', () => {
+  it('is hidden when ui.cartOpen is false', () => {
+    const wrapper = mountDrawer()
+    expect(wrapper.find('[data-test="cart-drawer"]').exists()).toBe(false)
+  })
+
+  it('shows empty state when open with no items', async () => {
+    const wrapper = mountDrawer()
+    const ui = useUiStore()
+    ui.cartOpen = true
+    await wrapper.vm.$nextTick()
+    expect(wrapper.find('[data-test="cart-drawer"]').exists()).toBe(true)
+    expect(wrapper.text().toLowerCase()).toContain('empty')
+  })
+
+  it('renders line items from cart details', async () => {
+    const wrapper = mountDrawer()
+    const ui = useUiStore()
+    const cart = useCartStore()
+    cart.cartItems = { 1: 2 }
+    cart.cartDetails = {
+      items: [{ product_id: 1, name: 'Wireless Headphones', price: 299.99, quantity: 2, subtotal: 599.98 }],
+      total: 599.98,
+      items_count: 2,
+    }
+    ui.cartOpen = true
+    await wrapper.vm.$nextTick()
+    expect(wrapper.text()).toContain('Wireless Headphones')
+    expect(wrapper.text()).toContain('599.98')
+  })
+})
