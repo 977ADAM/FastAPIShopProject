@@ -1,110 +1,88 @@
-<!-- frontend/src/views/HomePage.vue -->
-<!--
-  Главная страница с каталогом товаров.
-  Отображает список товаров и фильтр по категориям.
--->
-
 <template>
-  <div class="min-h-screen bg-white">
-    <div class="max-w-7xl mx-auto px-4 py-8">
-      <!-- Заголовок -->
-      <div class="mb-8">
-        <h1 class="text-4xl font-extrabold text-black mb-2">Product Catalog</h1>
-        <p class="text-gray-500">Discover our amazing products</p>
+  <main>
+    <!-- HERO -->
+    <section class="relative flex flex-col overflow-hidden md:flex-row" style="background:#efece4">
+      <div class="z-[2] flex max-w-[760px] flex-1 flex-col justify-center px-6 py-14 md:px-12">
+        <span class="font-mono text-xs tracking-[3px] text-accent">FASTAPI SHOP — ONLINE STORE</span>
+        <h1 class="mt-4 font-black text-5xl uppercase leading-[0.9] tracking-tight md:text-7xl">
+          Shop<br /><span class="text-accent">everything.</span>
+        </h1>
+        <p class="mt-6 max-w-[430px] text-base leading-relaxed text-neutral-600">
+          A curated catalog of electronics, apparel, books and more. Fast, clean, no nonsense.
+        </p>
+        <div class="mt-8 flex gap-3">
+          <a href="#catalog" class="emp-press cursor-pointer bg-accent px-7 py-4 font-mono text-[13px] font-bold tracking-wide text-white">SHOP NOW →</a>
+        </div>
+      </div>
+      <div class="relative flex flex-1 flex-col justify-between overflow-hidden p-10" style="background:radial-gradient(circle at 52% 44%, #343434 0%, #161616 58%, #111 100%)">
+        <div class="flex items-center justify-between">
+          <span class="font-mono text-xs tracking-[3px] text-neutral-500">FEATURED</span>
+          <div class="emp-badge flex h-[92px] w-[92px] rotate-12 items-center justify-center rounded-full bg-accent text-center font-mono text-[11px] font-bold leading-tight text-white">NEW<br />DROP</div>
+        </div>
+        <img v-if="featured?.image_url" :src="featured.image_url" :alt="featured.name" class="mx-auto max-h-[260px] object-contain" />
+      </div>
+    </section>
+
+    <AppMarquee />
+
+    <!-- CATEGORY CIRCLES -->
+    <section class="mx-auto flex max-w-[1440px] flex-wrap justify-center gap-9 px-6 pb-2 pt-10 md:px-12">
+      <CategoryCircle
+        v-for="c in store.categories"
+        :key="c.id"
+        :category="c"
+        :active="store.selectedCategory === c.id"
+        @select="onSelectCategory"
+      />
+    </section>
+
+    <!-- CATALOG -->
+    <section id="catalog" class="mx-auto max-w-[1440px] px-6 pb-16 pt-8 md:px-12">
+      <div class="mb-6 flex items-baseline justify-between">
+        <h2 class="m-0 font-black text-3xl uppercase tracking-tight">
+          {{ store.selectedCategory ? activeCategoryName : 'Best sellers' }}
+        </h2>
+        <button v-if="store.selectedCategory" class="font-mono text-xs tracking-wide text-ink underline decoration-accent decoration-2" @click="store.clearCategoryFilter()">
+          ALL PRODUCTS →
+        </button>
       </div>
 
-      <div class="flex gap-8">
-        <!-- Боковая панель с фильтром -->
-        <aside class="w-64 flex-shrink-0">
-          <CategoryFilter />
-        </aside>
-
-        <!-- Основное содержимое -->
-        <main class="flex-grow">
-          <!-- Информация о фильтрации -->
-          <div class="mb-6 flex items-center justify-between">
-            <p class="text-gray-700">
-              <span class="font-bold">{{ productsStore.productsCount }}</span>
-              {{ productsStore.productsCount === 1 ? 'product' : 'products' }} found
-            </p>
-
-            <!-- Кнопка сброса фильтра -->
-            <button
-              v-if="productsStore.selectedCategory"
-              @click="productsStore.clearCategoryFilter"
-              class="text-sm text-gray-500 hover:text-black transition-colors font-medium"
-            >
-              Clear filter
-            </button>
-          </div>
-
-          <!-- Состояние загрузки -->
-          <div v-if="productsStore.loading" class="text-center py-12">
-            <div
-              class="inline-block animate-spin rounded-none h-12 w-12 border-b-2 border-black"
-            ></div>
-            <p class="mt-4 text-gray-500">Loading products...</p>
-          </div>
-
-          <!-- Ошибка -->
-          <div v-else-if="productsStore.error" class="text-center py-12">
-            <p class="text-red-600 font-medium">{{ productsStore.error }}</p>
-          </div>
-
-          <!-- Список товаров -->
-          <div
-            v-else-if="productsStore.filteredProducts.length > 0"
-            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-          >
-            <ProductCard
-              v-for="product in productsStore.filteredProducts"
-              :key="product.id"
-              :product="product"
-            />
-          </div>
-
-          <!-- Пустое состояние -->
-          <div v-else class="text-center py-12">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-16 w-16 mx-auto text-gray-400 mb-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
-              />
-            </svg>
-            <p class="text-gray-500 text-lg font-medium">No products found</p>
-            <button
-              @click="productsStore.clearCategoryFilter"
-              class="mt-4 text-black hover:underline font-medium"
-            >
-              View all products
-            </button>
-          </div>
-        </main>
+      <p v-if="store.loading" class="font-mono text-sm text-muted">Loading…</p>
+      <div v-else class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <ProductCard v-for="p in store.filteredProducts" :key="p.id" :product="p" />
       </div>
-    </div>
-  </div>
+    </section>
+  </main>
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useProductsStore } from '@/stores/products'
+import AppMarquee from '@/components/AppMarquee.vue'
+import CategoryCircle from '@/components/CategoryCircle.vue'
 import ProductCard from '@/components/ProductCard.vue'
-import CategoryFilter from '@/components/CategoryFilter.vue'
 
-const productsStore = useProductsStore()
+const store = useProductsStore()
+const featured = computed(() => store.products[0] ?? null)
+const activeCategoryName = computed(
+  () => store.categories.find((c) => c.id === store.selectedCategory)?.name ?? '',
+)
 
-/**
- * Загрузить данные при монтировании компонента
- */
-onMounted(async () => {
-  await Promise.all([productsStore.fetchProducts(), productsStore.fetchCategories()])
+function onSelectCategory(id) {
+  store.setCategory(id)
+  document.getElementById('catalog')?.scrollIntoView({ behavior: 'smooth' })
+}
+
+onMounted(() => {
+  store.fetchProducts()
+  store.fetchCategories()
 })
 </script>
+
+<style scoped>
+@keyframes empBadge { 0%,100% { transform: rotate(12deg) scale(1); } 50% { transform: rotate(12deg) scale(1.07); } }
+.emp-badge { animation: empBadge 2.6s ease-in-out infinite; }
+.emp-press { transition: transform 0.12s ease, filter 0.2s ease; }
+.emp-press:hover { filter: brightness(0.92); }
+.emp-press:active { transform: scale(0.97); }
+</style>
