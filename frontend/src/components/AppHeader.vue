@@ -1,81 +1,33 @@
-<!-- frontend/src/components/Header.vue -->
-<!--
-  Компонент шапки сайта.
-  Содержит логотип, навигацию и счетчик товаров в корзине.
--->
-
 <template>
-  <header class="bg-white border-b-2 border-black sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-4">
-      <div class="flex items-center justify-between h-20">
-        <!-- Логотип -->
-        <router-link to="/" class="flex items-center space-x-2 group">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-8 w-8 group-hover:scale-110 transition-transform"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-            />
-          </svg>
-          <span class="text-2xl font-bold text-black">FastAPI Shop</span>
-        </router-link>
+  <header class="sticky top-0 z-50 flex h-[74px] items-center justify-between border-b border-border bg-white px-5 md:px-12">
+    <RouterLink to="/" class="flex items-center gap-3">
+      <div class="flex h-9 w-9 items-center justify-center rounded-[9px] bg-accent font-black text-xl text-white">S</div>
+      <span class="font-black text-2xl tracking-tight text-ink">FastAPI Shop</span>
+    </RouterLink>
 
-        <!-- Навигация -->
-        <nav class="flex items-center space-x-8">
-          <!-- Ссылка на каталог -->
-          <router-link
-            to="/"
-            class="text-gray-700 hover:text-black transition-colors font-medium"
-            active-class="text-black font-semibold"
-          >
-            Catalog
-          </router-link>
+    <nav class="hidden gap-1 font-mono text-xs uppercase tracking-wide text-ink md:flex">
+      <RouterLink to="/" class="px-2.5 py-1.5">Catalog</RouterLink>
+    </nav>
 
-          <!-- Корзина -->
-          <router-link
-            to="/cart"
-            class="relative flex items-center space-x-2 text-gray-700 hover:text-black transition-colors font-medium"
-            active-class="text-black font-semibold"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-              />
-            </svg>
-            <span>Cart</span>
-
-            <!-- Счетчик товаров -->
-            <span
-              v-if="cartStore.itemsCount > 0"
-              class="absolute -top-2 -right-2 bg-black text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center"
-            >
-              {{ cartStore.itemsCount }}
-            </span>
-          </router-link>
-        </nav>
-      </div>
+    <div class="flex items-center gap-4 font-mono text-xs text-ink">
+      <span class="hidden cursor-default sm:inline">SEARCH</span>
+      <button
+        type="button"
+        data-test="open-cart"
+        class="cursor-pointer bg-ink px-3 py-1.5 text-white"
+        @click="ui.openCart()"
+      >
+        BAG · {{ cart.itemsCount }}
+      </button>
     </div>
   </header>
 </template>
 
 <script setup>
+import { RouterLink } from 'vue-router'
 import { useCartStore } from '@/stores/cart'
+import { useUiStore } from '@/stores/ui'
 
-const cartStore = useCartStore()
+const cart = useCartStore()
+const ui = useUiStore()
 </script>
