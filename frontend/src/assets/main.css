@@ -1,37 +1,42 @@
-@import './base.css';
+@import 'tailwindcss';
 
-/* Убираем конфликтующие стили для #app */
-#app {
-  max-width: 100%;
-  margin: 0;
-  padding: 0;
+@theme {
+  --color-bg: #e7e7e2;
+  --color-surface: #ffffff;
+  --color-ink: #111111;
+  --color-accent: #e11d2e;
+  --color-accent-ink: #ffffff;
+  --color-border: #e2e2dc;
+  --color-muted: #7a7a74;
+  --color-success: #16a34a;
+  --color-warning: #f59e0b;
+
+  --font-sans: 'Archivo', system-ui, sans-serif;
+  --font-black: 'Archivo Black', sans-serif;
+  --font-mono: 'Space Mono', monospace;
 }
 
-a,
-.green {
-  text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
-  transition: 0.4s;
-  padding: 3px;
-}
-
-@media (hover: hover) {
-  a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
-  }
-}
-
-/* Переопределяем проблемные media queries */
-@media (min-width: 1024px) {
+@layer base {
+  html,
   body {
-    display: block;
-    place-items: initial;
+    margin: 0;
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
   }
-
   #app {
-    display: block;
-    grid-template-columns: none;
-    padding: 0;
-    max-width: 100%;
+    min-height: 100vh;
   }
 }
+
+/* Patterned placeholder for missing imagery */
+.placeholder-hatch {
+  background: repeating-linear-gradient(45deg, #ecece7 0 12px, #e4e4de 12px 24px);
+}
+
+/* Brutalist marquee animation */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.animate-marquee { animation: marquee 22s linear infinite; }
