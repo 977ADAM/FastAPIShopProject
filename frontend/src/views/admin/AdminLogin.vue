@@ -1,21 +1,40 @@
 <template>
-  <div class="login-wrap">
-    <form class="login-card" @submit.prevent="onSubmit">
-      <h1>Вход администратора</h1>
+  <div class="flex min-h-screen items-center justify-center bg-bg px-4 py-16">
+    <form
+      class="flex w-80 flex-col gap-5 border-2 border-ink bg-white p-8"
+      @submit.prevent="onSubmit"
+    >
+      <h1 class="font-black text-2xl uppercase tracking-tight">ADMIN</h1>
 
-      <label>
+      <label class="flex flex-col gap-1 font-mono text-xs uppercase tracking-wide text-muted">
         Логин
-        <input v-model="username" type="text" autocomplete="username" required />
+        <input
+          v-model="username"
+          type="text"
+          autocomplete="username"
+          required
+          class="border border-ink px-3 py-2 font-sans text-sm text-ink focus:outline-none"
+        />
       </label>
 
-      <label>
+      <label class="flex flex-col gap-1 font-mono text-xs uppercase tracking-wide text-muted">
         Пароль
-        <input v-model="password" type="password" autocomplete="current-password" required />
+        <input
+          v-model="password"
+          type="password"
+          autocomplete="current-password"
+          required
+          class="border border-ink px-3 py-2 font-sans text-sm text-ink focus:outline-none"
+        />
       </label>
 
-      <p v-if="auth.error" class="error">{{ auth.error }}</p>
+      <p v-if="auth.error" class="font-mono text-xs text-accent">{{ auth.error }}</p>
 
-      <button type="submit" :disabled="auth.loading">
+      <button
+        type="submit"
+        :disabled="auth.loading"
+        class="emp-press cursor-pointer bg-accent px-4 py-3 font-mono text-sm font-bold uppercase tracking-wide text-white disabled:cursor-default disabled:opacity-60"
+      >
         {{ auth.loading ? 'Вход…' : 'Войти' }}
       </button>
     </form>
@@ -39,53 +58,3 @@ async function onSubmit() {
   }
 }
 </script>
-
-<style scoped>
-.login-wrap {
-  display: flex;
-  justify-content: center;
-  padding: 64px 16px;
-}
-.login-card {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  width: 320px;
-  padding: 32px;
-  border: 2px solid #111;
-  border-radius: 8px;
-  background: #fff;
-}
-.login-card h1 {
-  margin: 0;
-  font-size: 20px;
-}
-label {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-size: 14px;
-}
-input {
-  padding: 8px;
-  border: 1px solid #999;
-  border-radius: 4px;
-}
-button {
-  padding: 10px;
-  border: none;
-  border-radius: 4px;
-  background: #111;
-  color: #fff;
-  cursor: pointer;
-}
-button:disabled {
-  opacity: 0.6;
-  cursor: default;
-}
-.error {
-  margin: 0;
-  color: #c0392b;
-  font-size: 14px;
-}
-</style>

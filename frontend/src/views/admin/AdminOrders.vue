@@ -1,41 +1,64 @@
 <template>
-  <div class="admin">
-    <header class="admin-header">
-      <h1>Админка — заказы</h1>
-      <nav>
-        <router-link to="/admin">Товары</router-link>
-        <button class="link" @click="onLogout">Выйти</button>
+  <div class="mx-auto min-h-screen max-w-[1000px] bg-bg px-4 py-6">
+    <header class="mb-4 flex items-center justify-between">
+      <h1 class="font-black text-2xl uppercase tracking-tight">Админка — заказы</h1>
+      <nav class="flex items-center gap-4 font-mono text-xs uppercase tracking-wide">
+        <router-link to="/admin" class="text-ink hover:text-accent">Товары</router-link>
+        <button type="button" class="cursor-pointer text-ink hover:text-accent" @click="onLogout">
+          Выйти
+        </button>
       </nav>
     </header>
 
-    <p v-if="error" class="error">{{ error }}</p>
-    <p v-if="loading">Загрузка…</p>
+    <p v-if="error" class="font-mono text-xs text-accent">{{ error }}</p>
+    <p v-if="loading" class="font-mono text-xs text-muted">Загрузка…</p>
 
-    <table v-else class="card">
+    <table v-else class="w-full border-collapse border border-border bg-white">
       <thead>
-        <tr>
-          <th>ID</th><th>Покупатель</th><th>Email</th><th>Сумма</th><th>Позиции</th><th>Статус</th>
+        <tr class="border-b border-ink font-mono text-xs uppercase tracking-wide text-muted">
+          <th class="px-3 py-2 text-left">ID</th>
+          <th class="px-3 py-2 text-left">Покупатель</th>
+          <th class="px-3 py-2 text-left">Email</th>
+          <th class="px-3 py-2 text-left">Сумма</th>
+          <th class="px-3 py-2 text-left">Позиции</th>
+          <th class="px-3 py-2 text-left">Статус</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="o in orders" :key="o.id">
-          <td>{{ o.id }}</td>
-          <td>{{ o.customer_name }}</td>
-          <td>{{ o.customer_email }}</td>
-          <td>${{ o.total.toFixed(2) }}</td>
-          <td>
-            <span v-for="it in o.items" :key="it.product_id" class="item">
+        <tr v-for="o in orders" :key="o.id" class="border-b border-border text-sm">
+          <td class="px-3 py-2">{{ o.id }}</td>
+          <td class="px-3 py-2">{{ o.customer_name }}</td>
+          <td class="px-3 py-2">{{ o.customer_email }}</td>
+          <td class="px-3 py-2 font-mono">${{ o.total.toFixed(2) }}</td>
+          <td class="px-3 py-2">
+            <span
+              v-for="it in o.items"
+              :key="it.product_id"
+              class="mr-2 inline-block font-mono text-xs text-muted"
+            >
               {{ it.product_name }} ×{{ it.quantity }}
             </span>
           </td>
-          <td>
-            <select :value="o.status" @change="onStatusChange(o, $event.target.value)">
+          <td class="px-3 py-2">
+            <select
+              :value="o.status"
+              class="border border-ink px-2 py-1 font-mono text-xs focus:outline-none"
+              :class="{
+                'text-muted': o.status === 'pending',
+                'text-ink': o.status === 'paid' || o.status === 'shipped',
+                'text-success': o.status === 'completed',
+                'text-accent': o.status === 'cancelled',
+              }"
+              @change="onStatusChange(o, $event.target.value)"
+            >
               <option v-for="s in statuses" :key="s" :value="s">{{ s }}</option>
             </select>
           </td>
         </tr>
         <tr v-if="!orders.length">
-          <td colspan="6" class="empty">Заказов пока нет</td>
+          <td colspan="6" class="px-3 py-6 text-center font-mono text-sm text-muted">
+            Заказов пока нет
+          </td>
         </tr>
       </tbody>
     </table>
@@ -84,62 +107,3 @@ function onLogout() {
 
 onMounted(load)
 </script>
-
-<style scoped>
-.admin {
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 24px 16px;
-}
-.admin-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-}
-nav {
-  display: flex;
-  gap: 16px;
-  align-items: center;
-}
-.card {
-  width: 100%;
-  border-collapse: collapse;
-  border: 2px solid #111;
-  border-radius: 8px;
-  overflow: hidden;
-}
-th,
-td {
-  text-align: left;
-  padding: 8px 10px;
-  border-bottom: 1px solid #eee;
-  font-size: 14px;
-}
-.item {
-  display: inline-block;
-  margin-right: 8px;
-  color: #555;
-}
-select {
-  padding: 4px;
-  border: 1px solid #999;
-  border-radius: 4px;
-}
-.link {
-  background: none;
-  border: none;
-  color: #2563eb;
-  cursor: pointer;
-}
-.error {
-  color: #c0392b;
-}
-.empty {
-  text-align: center;
-  color: #888;
-}
-a {
-  color: #2563eb;
-}
-</style>
