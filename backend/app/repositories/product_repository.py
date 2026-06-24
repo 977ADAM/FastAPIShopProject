@@ -10,8 +10,31 @@ class ProductRepository:
     def __init__(self, db: Session):
         self.db = db
 
-    def get_all(self) -> List[Product]:
-        return self.db.query(Product).options(joinedload(Product.category)).all()
+    def _filtered_query(self, search: Optional[str] = None):
+        query = self.db.query(Product)
+        if search:
+            query = query.filter(Product.name.ilike(f"%{search}%"))
+        return query
+
+    def get_all(
+        self,
+        limit: Optional[int] = None,
+        offset: int = 0,
+        search: Optional[str] = None,
+    ) -> List[Product]:
+        query = (
+            self._filtered_query(search)
+            .options(joinedload(Product.category))
+            .order_by(Product.id)
+        )
+        if offset:
+            query = query.offset(offset)
+        if limit is not None:
+            query = query.limit(limit)
+        return query.all()
+
+    def count(self, search: Optional[str] = None) -> int:
+        return self._filtered_query(search).count()
 
     def get_by_id(self, product_id: int) -> Optional[Product]:
         return (

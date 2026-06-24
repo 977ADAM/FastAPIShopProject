@@ -38,6 +38,12 @@ services:
       - JWT_SECRET=${JWT_SECRET}
     expose:
       - "8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/health').status==200 else 1)"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     depends_on:
       db:
         condition: service_healthy
@@ -53,7 +59,8 @@ services:
         - VITE_API_BASE_URL=https://${DOMAIN}/api
     container_name: fashop_frontend
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     expose:
       - "80"
     restart: unless-stopped
@@ -75,8 +82,10 @@ services:
       - DOMAIN=${DOMAIN}
     command: /bin/sh -c "envsubst '$${DOMAIN}' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"
     depends_on:
-      - backend
-      - frontend
+      backend:
+        condition: service_healthy
+      frontend:
+        condition: service_started
     restart: unless-stopped
     networks:
       - fashop_network

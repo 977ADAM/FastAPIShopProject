@@ -17,10 +17,16 @@ class ProductService:
         self.product_repository = ProductRepository(db)
         self.category_repository = CategoryRepository(db)
 
-    def get_all_products(self) -> ProductListResponse:
-        products = self.product_repository.get_all()
+    def get_all_products(
+        self,
+        limit=None,
+        offset: int = 0,
+        search=None,
+    ) -> ProductListResponse:
+        products = self.product_repository.get_all(limit=limit, offset=offset, search=search)
         products_response = [ProductResponse.model_validate(prod) for prod in products]
-        return ProductListResponse(products=products_response, total=len(products_response))
+        total = self.product_repository.count(search=search)
+        return ProductListResponse(products=products_response, total=total)
 
     def get_product_by_id(self, product_id: int) -> ProductResponse:
         product = self.product_repository.get_by_id(product_id)

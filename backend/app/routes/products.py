@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, status
+from typing import Optional
+
+from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
 
 from ..database import get_db
@@ -17,9 +19,14 @@ router = APIRouter(
 )
 
 @router.get("", response_model=ProductListResponse, status_code=status.HTTP_200_OK)
-def get_products(db: Session = Depends(get_db)):
+def get_products(
+    db: Session = Depends(get_db),
+    limit: Optional[int] = Query(None, ge=1, le=100, description="Page size"),
+    offset: int = Query(0, ge=0, description="Items to skip"),
+    search: Optional[str] = Query(None, description="Search by product name"),
+):
     service = ProductService(db)
-    return service.get_all_products()
+    return service.get_all_products(limit=limit, offset=offset, search=search)
 
 @router.get("/{product_id}", response_model=ProductResponse, status_code=status.HTTP_200_OK)
 def get_product(product_id: int, db: Session = Depends(get_db)):

@@ -14,6 +14,8 @@ dependencies = [
     "alembic>=1.18.4",
     "pyjwt>=2.13.0",
     "bcrypt>=5.0.0",
+    "slowapi>=0.1.10",
+    "python-multipart>=0.0.32",
 ]
 
 [tool.uv]
@@ -31,6 +33,12 @@ select = ["E", "F", "I"]
 # Long product description literals are data, not code.
 "seed_data.py" = ["E501"]
 
+[tool.mypy]
+python_version = "3.11"
+ignore_missing_imports = true
+strict_optional = false
+exclude = ["alembic/"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
@@ -40,6 +48,7 @@ filterwarnings = ["error::DeprecationWarning"]
 [dependency-groups]
 dev = [
     "httpx>=0.28.1",
+    "mypy>=2.1.0",
     "pytest>=9.1.1",
     "ruff>=0.15.19",
 ]

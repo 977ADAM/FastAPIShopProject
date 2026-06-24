@@ -30,6 +30,9 @@ jobs:
       - name: Lint (ruff)
         run: uv run --frozen ruff check .
 
+      - name: Type check (mypy)
+        run: uv run --frozen mypy app
+
       - name: Migrations apply cleanly
         run: uv run --frozen alembic upgrade head
         env:
