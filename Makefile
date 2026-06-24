@@ -91,6 +91,54 @@ front-e2e: ## Run frontend e2e tests (playwright; needs seeded backend)
 .PHONY: front-check
 front-check: front-lint front-test ## Lint + unit tests
 
+# ---- Docker (compose: db, backend, frontend, nginx, certbot) -------------
+
+COMPOSE := docker compose
+
+.PHONY: up
+up: ## Start the full stack in the background
+	$(COMPOSE) up -d
+
+.PHONY: up-build
+up-build: ## Rebuild images and start the stack
+	$(COMPOSE) up -d --build
+
+.PHONY: down
+down: ## Stop and remove containers
+	$(COMPOSE) down
+
+.PHONY: ps
+ps: ## Show compose service status
+	$(COMPOSE) ps
+
+.PHONY: logs
+logs: ## Tail logs (all services, or: make logs s=backend)
+	$(COMPOSE) logs -f $(s)
+
+.PHONY: docker-build
+docker-build: ## Build all images
+	$(COMPOSE) build
+
+.PHONY: docker-migrate
+docker-migrate: ## Run alembic migrations in the backend container
+	$(COMPOSE) exec backend uv run --frozen --no-dev alembic upgrade head
+
+.PHONY: docker-seed
+docker-seed: ## Seed demo data in the backend container
+	$(COMPOSE) exec backend uv run --frozen --no-dev python seed_data.py
+
+.PHONY: backup
+backup: ## Back up the Postgres DB to ./backups/
+	./scripts/backup.sh
+
+.PHONY: restore
+restore: ## Restore the DB from a dump: make restore f=backups/dump.sql.gz
+	./scripts/restore.sh $(f)
+
+.PHONY: deploy
+deploy: ## Run the VPS deploy script
+	./deploy.sh
+
 # ---- Combined ------------------------------------------------------------
 
 .PHONY: test
