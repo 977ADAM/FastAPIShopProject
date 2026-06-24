@@ -7,7 +7,7 @@
 <template>
   <div id="app" class="min-h-screen bg-gray-50">
     <!-- Шапка сайта -->
-    <Header />
+    <AppHeader />
 
     <!-- Основной контент (роутер) -->
     <RouterView />
@@ -27,7 +27,7 @@
 <script setup>
 import { onMounted } from 'vue'
 import { RouterView } from 'vue-router'
-import Header from '@/components/Header.vue'
+import AppHeader from '@/components/AppHeader.vue'
 import { useCartStore } from '@/stores/cart'
 
 const cartStore = useCartStore()

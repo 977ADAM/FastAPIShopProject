@@ -37,11 +37,13 @@ FastAPIShopProject/
 │   │   ├── repositories/      # Доступ к данным
 │   │   ├── services/          # Бизнес-логика (products, categories, cart)
 │   │   └── routes/            # API-эндпоинты
+│   ├── tests/                 # Pytest-тесты (изолированная in-memory БД)
 │   ├── static/images/         # Изображения товаров
 │   ├── seed_data.py           # Наполнение БД тестовыми данными
 │   ├── run.py                 # Локальный запуск через uvicorn
 │   ├── pyproject.toml         # Зависимости и метаданные проекта (uv)
 │   ├── uv.lock                # Зафиксированные версии зависимостей
+│   ├── .env.example           # Пример конфигурации backend
 │   └── Dockerfile
 ├── frontend/
 │   ├── src/
@@ -52,7 +54,9 @@ FastAPIShopProject/
 │   │   └── router/            # Vue Router
 │   ├── nginx.conf
 │   └── Dockerfile
-├── nginx/                     # Конфигурация reverse proxy
+├── nginx/nginx.conf.template  # Reverse proxy (envsubst по ${DOMAIN})
+├── .github/workflows/ci.yml   # CI: тесты, lint, docker build
+├── .env.example               # Пример корневого .env для деплоя
 ├── docker-compose.yml
 └── deploy.sh                  # Автоматический деплой на VPS
 ```
@@ -102,6 +106,24 @@ npm run preview   # предпросмотр сборки
 npm run lint      # ESLint с авто-фиксом
 npm run format    # Prettier
 ```
+
+## Тесты
+
+Backend покрыт тестами на pytest (изолированная in-memory SQLite-БД, без обращения
+к `shop.db`):
+
+```bash
+cd backend
+uv run pytest
+```
+
+## CI
+
+GitHub Actions (`.github/workflows/ci.yml`) на каждый push/PR в `main`:
+
+- **backend** — `uv sync` + `pytest`
+- **frontend** — `npm ci` + `lint` + `build`
+- **docker** — сборка backend- и frontend-образов
 
 ## API
 

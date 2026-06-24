@@ -113,11 +113,9 @@
 
 <script setup>
 import { onMounted } from 'vue'
-import { useRouter } from 'vue-router'
 import { useCartStore } from '@/stores/cart'
 import CartItem from '@/components/CartItem.vue'
 
-const router = useRouter()
 const cartStore = useCartStore()
 
 /**

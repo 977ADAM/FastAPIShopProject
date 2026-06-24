@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from datetime import datetime
 from typing import Optional
 from .category import CategoryResponse
@@ -26,8 +26,7 @@ class ProductResponse(BaseModel):
     created_at: datetime
     category: CategoryResponse = Field(..., description="Product category details")
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class ProductListResponse(BaseModel):
     products: list[ProductResponse]

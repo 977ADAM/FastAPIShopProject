@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class CategoryBase(BaseModel):
@@ -13,5 +13,4 @@ class CategoryCreate(CategoryBase):
 class CategoryResponse(CategoryBase):
     id: int = Field(..., description='Unique category identifier')
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

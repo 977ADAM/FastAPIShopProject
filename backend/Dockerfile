@@ -9,9 +9,11 @@ RUN apt-get update && apt-get install -y \
     gcc \
     && rm -rf /var/lib/apt/lists/*
 
+# venv живёт вне /app, чтобы bind-mount ./backend:/app не затирал его
 ENV UV_COMPILE_BYTECODE=1 \
     UV_LINK_MODE=copy \
-    PATH="/app/.venv/bin:$PATH"
+    UV_PROJECT_ENVIRONMENT=/opt/venv \
+    PATH="/opt/venv/bin:$PATH"
 
 # Устанавливаем зависимости отдельным слоем (кэшируется при неизменных pyproject/lock)
 COPY backend/pyproject.toml backend/uv.lock ./

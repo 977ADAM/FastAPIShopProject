@@ -317,259 +317,6 @@ obtain_ssl_certificates() {
     fi
 }
 
-# Настройка Nginx конфигурации
-configure_nginx() {
-    print_step "Настройка Nginx конфигурации"
-
-    cat > nginx/nginx.conf << EOF
-events {
-    worker_connections 1024;
-}
-
-http {
-    include /etc/nginx/mime.types;
-    default_type application/octet-stream;
-
-    server_tokens off;
-    client_max_body_size 10M;
-
-    access_log /var/log/nginx/access.log;
-    error_log /var/log/nginx/error.log;
-
-    gzip on;
-    gzip_vary on;
-    gzip_min_length 1024;
-    gzip_types text/plain text/css text/xml text/javascript application/x-javascript application/xml+rss application/json;
-
-    # HTTP to HTTPS redirect
-    server {
-        listen 80;
-        server_name $DOMAIN www.$DOMAIN;
-
-        location /.well-known/acme-challenge/ {
-            root /var/www/certbot;
-        }
-
-        location / {
-            return 301 https://\$host\$request_uri;
-        }
-    }
-
-    # HTTPS server
-    server {
-        listen 443 ssl http2;
-        server_name $DOMAIN www.$DOMAIN;
-
-        ssl_certificate /etc/letsencrypt/live/$DOMAIN/fullchain.pem;
-        ssl_certificate_key /etc/letsencrypt/live/$DOMAIN/privkey.pem;
-
-        ssl_protocols TLSv1.2 TLSv1.3;
-        ssl_ciphers HIGH:!aNULL:!MD5;
-        ssl_prefer_server_ciphers on;
-        ssl_session_cache shared:SSL:10m;
-        ssl_session_timeout 10m;
-
-        add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
-        add_header X-Frame-Options "SAMEORIGIN" always;
-        add_header X-Content-Type-Options "nosniff" always;
-        add_header X-XSS-Protection "1; mode=block" always;
-
-        # Frontend (Vue.js)
-        location / {
-            proxy_pass http://frontend:80;
-            proxy_set_header Host \$host;
-            proxy_set_header X-Real-IP \$remote_addr;
-            proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto \$scheme;
-        }
-
-        # Backend API
-        location /api {
-            proxy_pass http://backend:8000;
-            proxy_set_header Host \$host;
-            proxy_set_header X-Real-IP \$remote_addr;
-            proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto \$scheme;
-
-            proxy_http_version 1.1;
-            proxy_connect_timeout 60s;
-            proxy_send_timeout 60s;
-            proxy_read_timeout 60s;
-        }
-
-        # Static files from backend
-        location /static/ {
-            alias /app/backend/static/;
-            expires 30d;
-            add_header Cache-Control "public, immutable";
-        }
-
-        # Health check
-        location /health {
-            proxy_pass http://backend:8000;
-            access_log off;
-        }
-    }
-}
-EOF
-
-    print_success "Nginx конфигурация создана"
-}
-
-# Обновление docker-compose.yml
-update_docker_compose() {
-    print_step "Обновление docker-compose.yml"
-
-    cat > docker-compose.yml << EOF
-version: '3.8'
-
-services:
-  backend:
-    build:
-      context: .
-      dockerfile: backend/Dockerfile
-    container_name: fashop_backend
-    command: uvicorn backend.app.main:app --host 0.0.0.0 --port 8000
-    volumes:
-      - ./backend:/app/backend
-      - ./backend/shop.db:/app/backend/shop.db
-      - backend_static:/app/backend/static
-    environment:
-      - APP_NAME=$APP_NAME
-      - DEBUG=False
-      - DATABASE_URL=sqlite:///./backend/shop.db
-      - CORS_ORIGINS=https://$DOMAIN,https://www.$DOMAIN
-    expose:
-      - "8000"
-    restart: unless-stopped
-    networks:
-      - fashop_network
-
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-      args:
-        - VITE_API_BASE_URL=https://$DOMAIN/api
-    container_name: fashop_frontend
-    depends_on:
-      - backend
-    expose:
-      - "80"
-    restart: unless-stopped
-    networks:
-      - fashop_network
-
-  nginx:
-    image: nginx:alpine
-    container_name: fashop_nginx
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - /etc/letsencrypt:/etc/letsencrypt:ro
-      - backend_static:/app/backend/static:ro
-      - ./certbot/www:/var/www/certbot:ro
-    ports:
-      - "80:80"
-      - "443:443"
-    depends_on:
-      - backend
-      - frontend
-    restart: unless-stopped
-    networks:
-      - fashop_network
-
-  certbot:
-    image: certbot/certbot
-    container_name: fashop_certbot
-    volumes:
-      - /etc/letsencrypt:/etc/letsencrypt
-      - ./certbot/www:/var/www/certbot
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait \$\${!}; done;'"
-    restart: unless-stopped
-    networks:
-      - fashop_network
-
-networks:
-  fashop_network:
-    driver: bridge
-
-volumes:
-  backend_static:
-EOF
-
-    print_success "docker-compose.yml обновлен"
-}
-
-# Обновление backend Dockerfile
-update_backend_dockerfile() {
-    print_step "Обновление backend Dockerfile"
-
-    cat > backend/Dockerfile << EOF
-FROM python:3.11-slim
-
-# Устанавливаем uv из официального образа
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
-
-WORKDIR /app
-
-RUN apt-get update && apt-get install -y \\
-    gcc \\
-    && rm -rf /var/lib/apt/lists/*
-
-ENV UV_COMPILE_BYTECODE=1 \\
-    UV_LINK_MODE=copy \\
-    PATH="/app/.venv/bin:\$PATH"
-
-# Устанавливаем зависимости отдельным слоем (кэшируется при неизменных pyproject/lock)
-COPY backend/pyproject.toml backend/uv.lock ./
-RUN uv sync --frozen --no-dev --no-install-project
-
-COPY backend/ .
-
-# Создаем директорию static в правильном месте
-RUN mkdir -p static/images
-
-RUN chmod -R 755 static
-
-EXPOSE 8000
-
-CMD ["uv", "run", "--frozen", "--no-dev", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
-EOF
-
-    print_success "backend/Dockerfile обновлен"
-}
-
-# Обновление frontend Dockerfile для передачи API URL
-update_frontend_dockerfile() {
-    print_step "Обновление frontend Dockerfile"
-
-    cat > frontend/Dockerfile << EOF
-FROM node:20-alpine as build
-
-WORKDIR /app
-
-ARG VITE_API_BASE_URL
-ENV VITE_API_BASE_URL=\${VITE_API_BASE_URL}
-
-COPY package*.json ./
-RUN npm ci
-
-COPY . .
-RUN npm run build
-
-FROM nginx:alpine
-
-COPY --from=build /app/dist /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-
-EXPOSE 80
-
-CMD ["nginx", "-g", "daemon off;"]
-EOF
-
-    print_success "frontend/Dockerfile обновлен"
-}
-
 # Создание необходимых директорий
 create_directories() {
     print_step "Создание необходимых директорий"
@@ -631,7 +378,7 @@ seed_database() {
     sleep 5
 
     print_info "Запуск скрипта seed_data.py..."
-    docker compose exec -T backend uv run --frozen --no-dev python backend/seed_data.py
+    docker compose exec -T backend uv run --frozen --no-dev python seed_data.py
 
     if [ $? -eq 0 ]; then
         print_success "База данных успешно заполнена"
@@ -684,7 +431,7 @@ show_deployment_info() {
     echo -e "   Перезапуск:             ${CYAN}docker compose restart${NC}"
     echo -e "   Остановка:              ${CYAN}docker compose down${NC}"
     echo -e "   Статус контейнеров:     ${CYAN}docker compose ps${NC}"
-    echo -e "   Пересоздать данные:     ${CYAN}docker compose exec backend uv run python backend/seed_data.py${NC}"
+    echo -e "   Пересоздать данные:     ${CYAN}docker compose exec backend uv run python seed_data.py${NC}"
 
     echo -e "\n${BOLD}📂 Важные файлы:${NC}"
     echo -e "   Конфигурация:    ${CYAN}.env${NC}"
@@ -725,9 +472,6 @@ main() {
     install_docker
     install_certbot
     obtain_ssl_certificates
-    configure_nginx
-    update_docker_compose
-    update_frontend_dockerfile
     create_directories
     build_and_run_docker
     seed_database
