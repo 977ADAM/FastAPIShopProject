@@ -2,12 +2,15 @@ import { mount } from '@vue/test-utils'
 import { createTestingPinia } from '@pinia/testing'
 import { describe, it, expect, vi } from 'vitest'
 import ProductCard from '@/components/ProductCard.vue'
+import { useCartStore } from '@/stores/cart'
+import { useUiStore } from '@/stores/ui'
 
 const product = {
   id: 1,
-  name: 'Test Product',
-  price: 19.99,
+  name: 'Wireless Headphones',
+  price: 299.99,
   image_url: 'http://example.com/img.jpg',
+  stock: 5,
   category: { id: 1, name: 'Electronics' },
 }
 
@@ -15,24 +18,28 @@ function mountCard() {
   return mount(ProductCard, {
     props: { product },
     global: {
-      plugins: [createTestingPinia({ createSpy: vi.fn })],
-      stubs: { 'router-link': { template: '<a><slot /></a>' } },
+      plugins: [createTestingPinia({ createSpy: vi.fn, stubActions: false })],
+      stubs: { RouterLink: { template: '<a><slot /></a>' } },
     },
   })
 }
 
 describe('ProductCard', () => {
-  it('renders name, category and formatted price', () => {
+  it('renders name, category and price', () => {
     const wrapper = mountCard()
-    expect(wrapper.text()).toContain('Test Product')
+    expect(wrapper.text()).toContain('Wireless Headphones')
     expect(wrapper.text()).toContain('Electronics')
-    expect(wrapper.text()).toContain('19.99')
+    expect(wrapper.text()).toContain('299.99')
   })
 
-  it('renders the product image', () => {
+  it('add button calls cart.addToCart and shows toast', async () => {
     const wrapper = mountCard()
-    const img = wrapper.find('img')
-    expect(img.attributes('src')).toBe(product.image_url)
-    expect(img.attributes('alt')).toBe(product.name)
+    const cart = useCartStore()
+    const ui = useUiStore()
+    cart.addToCart = vi.fn().mockResolvedValue(true)
+    ui.showToast = vi.fn()
+    await wrapper.find('[data-test="add-to-cart"]').trigger('click')
+    expect(cart.addToCart).toHaveBeenCalledWith(1, 1)
+    expect(ui.showToast).toHaveBeenCalled()
   })
 })
