@@ -83,3 +83,6 @@ celerybeat-schedule
 celerybeat-schedule-wal
 # Playwright MCP artifacts
 .playwright-mcp/
+
+# Brainstorm visual companion
+.superpowers/
