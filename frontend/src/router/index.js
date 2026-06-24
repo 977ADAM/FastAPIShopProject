@@ -10,6 +10,7 @@ import ProductDetailPage from '@/views/ProductDetailPage.vue'
 import CartPage from '@/views/CartPage.vue'
 import AdminLogin from '@/views/admin/AdminLogin.vue'
 import AdminProducts from '@/views/admin/AdminProducts.vue'
+import AdminOrders from '@/views/admin/AdminOrders.vue'
 import { useAuthStore } from '@/stores/auth'
 
 const router = createRouter({
@@ -53,6 +54,15 @@ const router = createRouter({
       component: AdminProducts,
       meta: {
         title: 'Admin — Products',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/admin/orders',
+      name: 'admin-orders',
+      component: AdminOrders,
+      meta: {
+        title: 'Admin — Orders',
         requiresAuth: true,
       },
     },

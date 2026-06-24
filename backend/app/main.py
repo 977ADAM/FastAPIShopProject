@@ -14,6 +14,7 @@ from .routes import (
     auth_router,
     cart_router,
     categories_router,
+    orders_router,
     products_router,
     uploads_router,
 )
@@ -69,6 +70,7 @@ app.include_router(products_router)
 app.include_router(categories_router)
 app.include_router(cart_router)
 app.include_router(uploads_router)
+app.include_router(orders_router)
 
 @app.get('/')
 def root():

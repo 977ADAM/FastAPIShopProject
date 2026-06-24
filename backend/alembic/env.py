@@ -8,6 +8,7 @@ from app.database import Base
 
 # Import models so they register on Base.metadata for autogenerate.
 from app.models import category as _category  # noqa: F401
+from app.models import order as _order  # noqa: F401
 from app.models import product as _product  # noqa: F401
 
 # this is the Alembic Config object, which provides

@@ -2,7 +2,10 @@
   <div class="admin">
     <header class="admin-header">
       <h1>Админка — товары</h1>
-      <button class="link" @click="onLogout">Выйти</button>
+      <nav>
+        <router-link to="/admin/orders">Заказы</router-link>
+        <button class="link" @click="onLogout">Выйти</button>
+      </nav>
     </header>
 
     <p v-if="error" class="error">{{ error }}</p>
@@ -15,6 +18,7 @@
         <label>Название<input v-model="form.name" required minlength="5" /></label>
         <label>Описание<textarea v-model="form.description" rows="2" /></label>
         <label>Цена<input v-model.number="form.price" type="number" step="0.01" min="0.01" required /></label>
+        <label>Остаток<input v-model.number="form.stock" type="number" min="0" /></label>
         <label>
           Категория
           <select v-model.number="form.category_id" required>
@@ -60,7 +64,7 @@
       <p v-if="loading">Загрузка…</p>
       <table v-else>
         <thead>
-          <tr><th>ID</th><th>Название</th><th>Категория</th><th>Цена</th><th></th></tr>
+          <tr><th>ID</th><th>Название</th><th>Категория</th><th>Цена</th><th>Остаток</th><th></th></tr>
         </thead>
         <tbody>
           <tr v-for="p in products" :key="p.id">
@@ -68,6 +72,7 @@
             <td>{{ p.name }}</td>
             <td>{{ p.category?.name }}</td>
             <td>${{ p.price.toFixed(2) }}</td>
+            <td>{{ p.stock }}</td>
             <td class="actions">
               <button class="link" @click="onEdit(p)">ред.</button>
               <button class="link danger" @click="onDelete(p.id)">удал.</button>
@@ -96,7 +101,14 @@ const uploading = ref(false)
 const error = ref(null)
 const editingId = ref(null)
 
-const emptyForm = () => ({ name: '', description: '', price: null, category_id: null, image_url: '' })
+const emptyForm = () => ({
+  name: '',
+  description: '',
+  price: null,
+  category_id: null,
+  image_url: '',
+  stock: 0,
+})
 const form = reactive(emptyForm())
 const categoryForm = reactive({ name: '', slug: '' })
 
@@ -127,6 +139,7 @@ function onEdit(p) {
     price: p.price,
     category_id: p.category_id,
     image_url: p.image_url || '',
+    stock: p.stock ?? 0,
   })
 }
 
@@ -214,6 +227,14 @@ onMounted(loadAll)
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+.admin-header nav {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+.admin-header a {
+  color: #2563eb;
 }
 .grid {
   display: grid;

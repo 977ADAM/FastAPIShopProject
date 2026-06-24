@@ -29,6 +29,23 @@ apiClient.interceptors.request.use((config) => {
   return config
 })
 
+// При протухшем/невалидном токене — разлогиниваем и уводим на логин.
+// Сам запрос логина (401 = неверный пароль) пропускаем — его обработает форма.
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const status = error.response?.status
+    const url = error.config?.url || ''
+    if (status === 401 && !url.includes('/auth/login')) {
+      localStorage.removeItem(TOKEN_KEY)
+      if (!window.location.pathname.startsWith('/admin/login')) {
+        window.location.assign('/admin/login')
+      }
+    }
+    return Promise.reject(error)
+  },
+)
+
 // Авторизация
 export const authAPI = {
   login(username, password) {
@@ -176,6 +193,39 @@ export const cartAPI = {
         cart: cartData,
       },
     })
+  },
+}
+
+/**
+ * API методы для работы с заказами
+ */
+export const ordersAPI = {
+  /**
+   * Создать заказ (публично)
+   */
+  create(order) {
+    return apiClient.post('/orders', order)
+  },
+
+  /**
+   * Список заказов (админ)
+   */
+  getAll(params = {}) {
+    return apiClient.get('/orders', { params })
+  },
+
+  /**
+   * Заказ по ID (админ)
+   */
+  getById(id) {
+    return apiClient.get(`/orders/${id}`)
+  },
+
+  /**
+   * Изменить статус заказа (админ)
+   */
+  updateStatus(id, status) {
+    return apiClient.patch(`/orders/${id}/status`, { status })
   },
 }
 

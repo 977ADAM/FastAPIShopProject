@@ -7,7 +7,7 @@
 
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { cartAPI } from '@/services/api'
+import { cartAPI, ordersAPI } from '@/services/api'
 
 const CART_STORAGE_KEY = 'shopping_cart'
 
@@ -142,6 +142,28 @@ export const useCartStore = defineStore('cart', () => {
     localStorage.removeItem(CART_STORAGE_KEY)
   }
 
+  /**
+   * Оформить заказ. Возвращает созданный заказ или null при ошибке.
+   */
+  async function checkout(customer) {
+    const items = Object.entries(cartItems.value).map(([productId, quantity]) => ({
+      product_id: Number(productId),
+      quantity,
+    }))
+    try {
+      const response = await ordersAPI.create({
+        customer_name: customer.name,
+        customer_email: customer.email,
+        items,
+      })
+      clearCart()
+      return response.data
+    } catch (err) {
+      console.error('Error during checkout:', err)
+      throw err
+    }
+  }
+
   return {
     // State
     cartItems,
@@ -158,5 +180,6 @@ export const useCartStore = defineStore('cart', () => {
     updateQuantity,
     removeFromCart,
     clearCart,
+    checkout,
   }
 })

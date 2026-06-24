@@ -8,9 +8,12 @@ vi.mock('@/services/api', () => ({
     updateItem: vi.fn(),
     removeItem: vi.fn(),
   },
+  ordersAPI: {
+    create: vi.fn(),
+  },
 }))
 
-import { cartAPI } from '@/services/api'
+import { cartAPI, ordersAPI } from '@/services/api'
 import { useCartStore } from '@/stores/cart'
 
 describe('cart store', () => {
@@ -66,6 +69,22 @@ describe('cart store', () => {
     store.cartItems = { 1: 2 }
     store.clearCart()
     expect(store.cartItems).toEqual({})
+    expect(store.hasItems).toBe(false)
+  })
+
+  it('checkout posts items, clears cart and returns the order', async () => {
+    ordersAPI.create.mockResolvedValue({ data: { id: 7, total: 20 } })
+    const store = useCartStore()
+    store.cartItems = { 1: 2 }
+
+    const order = await store.checkout({ name: 'Jane', email: 'jane@example.com' })
+
+    expect(ordersAPI.create).toHaveBeenCalledWith({
+      customer_name: 'Jane',
+      customer_email: 'jane@example.com',
+      items: [{ product_id: 1, quantity: 2 }],
+    })
+    expect(order.id).toBe(7)
     expect(store.hasItems).toBe(false)
   })
 })

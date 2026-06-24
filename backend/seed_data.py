@@ -152,7 +152,7 @@ def create_products(db, categories):
     ]
 
     for product_data in products_data:
-        product = Product(**product_data)
+        product = Product(stock=100, **product_data)
         db.add(product)
 
     db.commit()

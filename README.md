@@ -145,12 +145,20 @@ cd frontend
 npm run test
 ```
 
+E2E — Playwright (нужен запущенный backend на `:8000`):
+
+```bash
+cd frontend
+npm run test:e2e
+```
+
 ## CI
 
 GitHub Actions (`.github/workflows/ci.yml`) на каждый push/PR в `main`:
 
 - **backend** — `ruff` + `mypy` + `alembic upgrade head` + `pytest`
 - **frontend** — `npm ci` + `lint` + `test` + `build`
+- **e2e** — Playwright против запущенного backend + frontend
 - **docker** — сборка backend- и frontend-образов
 
 Зависимости обновляются автоматически через Dependabot. Локальные хуки —
@@ -190,6 +198,15 @@ GitHub Actions (`.github/workflows/ci.yml`) на каждый push/PR в `main`:
 | `PUT` | `/api/categories/{category_id}` | админ | Обновить категорию |
 | `DELETE` | `/api/categories/{category_id}` | админ | Удалить категорию (если без товаров) |
 
+### Orders
+
+| Метод | Путь | Доступ | Описание |
+|-------|------|--------|----------|
+| `POST` | `/api/orders` | публично | Оформить заказ (`customer_name`, `customer_email`, `items[]`); проверяет и списывает остатки |
+| `GET` | `/api/orders` | админ | Список заказов (`?limit=&offset=`) |
+| `GET` | `/api/orders/{id}` | админ | Заказ по ID |
+| `PATCH` | `/api/orders/{id}/status` | админ | Сменить статус (`pending/paid/shipped/completed/cancelled`) |
+
 ### Uploads
 
 | Метод | Путь | Доступ | Описание |
@@ -200,8 +217,11 @@ GitHub Actions (`.github/workflows/ci.yml`) на каждый push/PR в `main`:
 
 - `/admin/login` — вход (логин/пароль администратора)
 - `/admin` — управление товарами и категориями (создание/редактирование/удаление,
-  загрузка изображений). Доступ защищён router-guard; JWT хранится в localStorage
-  и подставляется в запросы интерсептором axios.
+  загрузка изображений, остатки)
+- `/admin/orders` — список заказов и смена статусов
+
+Доступ защищён router-guard; JWT хранится в localStorage и подставляется в запросы
+интерсептором axios. При `401` (протухший токен) — авто-разлогин и редирект на логин.
 
 ### Cart
 

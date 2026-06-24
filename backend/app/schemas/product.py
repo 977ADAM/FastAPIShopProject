@@ -14,6 +14,7 @@ class ProductBase(BaseModel):
                             description="Product price(must be greater than 0")
     category_id: int = Field(..., description='Category ID')
     image_url: Optional[str] = Field(None, description='Product image URL')
+    stock: int = Field(0, ge=0, description='Available stock')
 
 class ProductCreate(ProductBase):
     pass
@@ -24,6 +25,7 @@ class ProductUpdate(BaseModel):
     price: Optional[float] = Field(None, gt=0)
     category_id: Optional[int] = None
     image_url: Optional[str] = None
+    stock: Optional[int] = Field(None, ge=0)
 
 class ProductResponse(BaseModel):
     id: int = Field(..., description="Unique product ID")
@@ -32,6 +34,7 @@ class ProductResponse(BaseModel):
     price: float
     category_id: int
     image_url: Optional[str]
+    stock: int
     created_at: datetime
     category: CategoryResponse = Field(..., description="Product category details")
 

@@ -119,10 +119,22 @@ import CartItem from '@/components/CartItem.vue'
 const cartStore = useCartStore()
 
 /**
- * Оформление заказа (placeholder)
+ * Оформление заказа.
+ * Минимальный сбор данных покупателя; полноценная форма — в редизайне.
  */
-function handleCheckout() {
-  alert('Checkout functionality will be implemented soon!')
+async function handleCheckout() {
+  if (!cartStore.hasItems) return
+  const name = window.prompt('Ваше имя:')
+  if (!name) return
+  const email = window.prompt('Ваш email:')
+  if (!email) return
+  try {
+    const order = await cartStore.checkout({ name, email })
+    alert(`Заказ #${order.id} оформлен! Сумма: $${order.total.toFixed(2)}`)
+  } catch (err) {
+    const detail = err.response?.data?.detail || 'Не удалось оформить заказ'
+    alert(detail)
+  }
 }
 
 /**

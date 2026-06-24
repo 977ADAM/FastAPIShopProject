@@ -44,6 +44,7 @@ def seeded_db():
         price=299.99,
         category_id=category.id,
         image_url="https://example.com/img.jpg",
+        stock=50,
     )
     session.add(product)
     session.commit()
