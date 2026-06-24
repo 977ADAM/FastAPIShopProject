@@ -9,5 +9,5 @@ test('storefront loads and shows seeded products', async ({ page }) => {
 
 test('cart page is reachable', async ({ page }) => {
   await page.goto('/cart')
-  await expect(page.getByText(/cart/i).first()).toBeVisible()
+  await expect(page.getByRole('heading', { name: /cart/i })).toBeVisible()
 })
