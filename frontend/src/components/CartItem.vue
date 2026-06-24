@@ -5,105 +5,66 @@
 -->
 
 <template>
-  <div
-    class="bg-white border-2 border-gray-100 rounded-none p-6 shadow-sm hover:border-gray-300 transition-colors"
-  >
-    <div class="flex gap-6">
-      <!-- Изображение товара -->
-      <div class="w-24 h-24 flex-shrink-0">
-        <img
-          :src="item.image_url"
-          :alt="item.name"
-          class="w-full h-full object-cover rounded-none"
-          @error="handleImageError"
-        />
-      </div>
+  <div class="flex items-center gap-5 border-b border-neutral-100 p-5">
+    <!-- Изображение товара -->
+    <div class="placeholder-hatch h-20 w-20 flex-shrink-0 overflow-hidden border border-border">
+      <img
+        v-if="item.image_url"
+        :src="item.image_url"
+        :alt="item.name"
+        class="h-full w-full object-cover"
+        @error="handleImageError"
+      />
+    </div>
 
-      <!-- Информация о товаре -->
-      <div class="flex-grow">
-        <h3 class="text-lg font-bold text-black mb-2">
-          {{ item.name }}
-        </h3>
-        <p class="text-gray-600 text-sm mb-3">${{ item.price.toFixed(2) }} each</p>
+    <!-- Информация о товаре -->
+    <div class="min-w-0 flex-grow">
+      <h3 class="font-bold uppercase tracking-tight">
+        {{ item.name }}
+      </h3>
+      <p class="mt-1 font-mono text-xs text-muted">${{ item.price.toFixed(2) }} each</p>
 
-        <!-- Управление количеством -->
-        <div class="flex items-center gap-4">
-          <div class="flex items-center border-2 border-gray-100 rounded-none" style="color: black">
-            <button
-              @click="decreaseQuantity"
-              :disabled="updating"
-              class="px-3 py-2 hover:bg-gray-100 transition-colors disabled:opacity-50"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M20 12H4"
-                />
-              </svg>
-            </button>
-
-            <span class="px-4 py-2 font-medium min-w-[40px] text-center">
-              {{ item.quantity }}
-            </span>
-
-            <button
-              @click="increaseQuantity"
-              :disabled="updating"
-              class="px-3 py-2 hover:bg-gray-100 transition-colors disabled:opacity-50"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M12 4v16m8-8H4"
-                />
-              </svg>
-            </button>
-          </div>
-
-          <!-- Кнопка удаления -->
+      <!-- Управление количеством -->
+      <div class="mt-3 flex items-center gap-4">
+        <div class="flex items-center font-mono">
           <button
-            @click="handleRemove"
+            type="button"
+            @click="decreaseQuantity"
             :disabled="updating"
-            class="text-red-600 hover:text-red-700 transition-colors disabled:opacity-50"
+            class="flex h-8 w-8 cursor-pointer items-center justify-center border border-ink text-sm disabled:opacity-50"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-              />
-            </svg>
+            −
+          </button>
+
+          <span class="w-10 text-center text-sm font-bold">
+            {{ item.quantity }}
+          </span>
+
+          <button
+            type="button"
+            @click="increaseQuantity"
+            :disabled="updating"
+            class="flex h-8 w-8 cursor-pointer items-center justify-center border border-ink text-sm disabled:opacity-50"
+          >
+            +
           </button>
         </div>
-      </div>
 
-      <!-- Сумма -->
-      <div class="text-right">
-        <p class="text-xl font-bold text-black">${{ item.subtotal.toFixed(2) }}</p>
+        <!-- Кнопка удаления -->
+        <button
+          type="button"
+          @click="handleRemove"
+          :disabled="updating"
+          class="cursor-pointer font-mono text-xs tracking-wide text-accent disabled:opacity-50"
+        >
+          REMOVE
+        </button>
       </div>
+    </div>
+
+    <!-- Сумма -->
+    <div class="text-right">
+      <p class="font-extrabold">${{ item.subtotal.toFixed(2) }}</p>
     </div>
   </div>
 </template>
