@@ -15,7 +15,7 @@
           <span class="text-white">SHOP</span><span>Catalog</span><span>New</span><span>Cart</span>
         </div>
         <div class="flex flex-col gap-2">
-          <span class="text-white">HELP</span><span>Shipping</span><span>Returns</span><span>Sizes</span>
+          <span class="text-white">HELP</span><span>Shipping</span><span>Returns</span><span>Contact</span>
         </div>
       </div>
     </div>
