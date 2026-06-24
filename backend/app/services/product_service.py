@@ -1,9 +1,16 @@
-from sqlalchemy.orm import Session
-from typing import List
-from ..repositories.product_repository import ProductRepository
-from ..repositories.category_repository import CategoryRepository
-from ..schemas.product import ProductResponse, ProductListResponse, ProductCreate
+
 from fastapi import HTTPException, status
+from sqlalchemy.orm import Session
+
+from ..repositories.category_repository import CategoryRepository
+from ..repositories.product_repository import ProductRepository
+from ..schemas.product import (
+    ProductCreate,
+    ProductListResponse,
+    ProductResponse,
+    ProductUpdate,
+)
+
 
 class ProductService:
     def __init__(self, db: Session):
@@ -46,3 +53,32 @@ class ProductService:
 
         product = self.product_repository.create(product_data)
         return ProductResponse.model_validate(product)
+
+    def update_product(self, product_id: int, product_data: ProductUpdate) -> ProductResponse:
+        product = self.product_repository.get_by_id(product_id)
+        if not product:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Product with id {product_id} not found"
+            )
+
+        fields = product_data.model_dump(exclude_unset=True)
+        if "category_id" in fields:
+            category = self.category_repository.get_by_id(fields["category_id"])
+            if not category:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Category with id {fields['category_id']} does not exist"
+                )
+
+        product = self.product_repository.update(product, fields)
+        return ProductResponse.model_validate(product)
+
+    def delete_product(self, product_id: int) -> None:
+        product = self.product_repository.get_by_id(product_id)
+        if not product:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Product with id {product_id} not found"
+            )
+        self.product_repository.delete(product)

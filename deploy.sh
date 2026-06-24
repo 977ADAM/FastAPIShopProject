@@ -101,6 +101,24 @@ get_user_input() {
     APP_NAME=${APP_NAME:-"FastAPI Shop"}
     print_success "Название: $APP_NAME"
 
+    # Логин администратора
+    echo -e "\n${BOLD}${YELLOW}Логин администратора (по умолчанию: admin):${NC}"
+    read -p "> " ADMIN_USERNAME
+    ADMIN_USERNAME=${ADMIN_USERNAME:-"admin"}
+    print_success "Логин админа: $ADMIN_USERNAME"
+
+    # Пароль администратора
+    while true; do
+        echo -e "\n${BOLD}${YELLOW}Пароль администратора (мин. 8 символов):${NC}"
+        read -rs -p "> " ADMIN_PASSWORD; echo
+        if [ ${#ADMIN_PASSWORD} -lt 8 ]; then
+            print_error "Пароль слишком короткий!"
+        else
+            break
+        fi
+    done
+    print_success "Пароль администратора принят"
+
     # Подтверждение
     echo -e "\n${BOLD}${CYAN}═══════════════════════════════════════════════════════════${NC}"
     echo -e "${BOLD}Проверьте введенные данные:${NC}"
@@ -109,6 +127,7 @@ get_user_input() {
     echo -e "  WWW Домен:      ${GREEN}www.$DOMAIN${NC}"
     echo -e "  Email:          ${GREEN}$EMAIL${NC}"
     echo -e "  Название:       ${GREEN}$APP_NAME${NC}"
+    echo -e "  Логин админа:   ${GREEN}$ADMIN_USERNAME${NC}"
     echo -e "${CYAN}═══════════════════════════════════════════════════════════${NC}\n"
 
     read -p "Всё верно? (y/n): " -n 1 -r
@@ -122,6 +141,10 @@ get_user_input() {
 # Создание .env файла
 create_env_file() {
     print_step "Создание файла конфигурации .env"
+
+    # Генерируем случайные секреты
+    POSTGRES_PASSWORD=$(openssl rand -hex 16)
+    JWT_SECRET=$(openssl rand -hex 32)
 
     cat > .env << EOF
 # Domain Configuration
@@ -137,32 +160,41 @@ CORS_ORIGINS=https://$DOMAIN,https://www.$DOMAIN
 
 # API Configuration
 VITE_API_BASE_URL=https://$DOMAIN/api
+
+# PostgreSQL
+POSTGRES_USER=fashop
+POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+POSTGRES_DB=fashop
+
+# Admin / JWT
+ADMIN_USERNAME=$ADMIN_USERNAME
+JWT_SECRET=$JWT_SECRET
 EOF
+    # ADMIN_PASSWORD_HASH добавляется после сборки образа (нужен bcrypt)
 
     print_success ".env файл создан успешно"
 }
 
-# Создание backend .env файла
-create_backend_env_file() {
-    print_step "Создание backend/.env файла"
+# Вычисление bcrypt-хеша пароля админа через собранный backend-образ
+write_admin_password_hash() {
+    print_step "Генерация хеша пароля администратора"
 
-    cat > backend/.env << EOF
-# Application
-APP_NAME=$APP_NAME
-DEBUG=False
+    ADMIN_PASSWORD_HASH=$(ADMIN_PASSWORD="$ADMIN_PASSWORD" docker compose run --rm --no-deps -T \
+        -e P="$ADMIN_PASSWORD" backend \
+        uv run --frozen --no-dev python -c \
+        "import bcrypt, os; print(bcrypt.hashpw(os.environ['P'].encode(), bcrypt.gensalt()).decode())" \
+        2>/dev/null | tr -d '\r\n')
 
-# Database
-DATABASE_URL=sqlite:///./shop.db
+    if [ -z "$ADMIN_PASSWORD_HASH" ]; then
+        print_error "Не удалось сгенерировать хеш пароля"
+        exit 1
+    fi
 
-# CORS Origins
-CORS_ORIGINS=https://$DOMAIN,https://www.$DOMAIN
-
-# Static files
-STATIC_DIR=static
-IMAGES_DIR=static/images
-EOF
-
-    print_success "backend/.env файл создан успешно"
+    # bcrypt-хеш содержит '$' — экранируем как '$$', иначе docker compose
+    # воспримет их как переменные и испортит значение.
+    local escaped="${ADMIN_PASSWORD_HASH//\$/\$\$}"
+    echo "ADMIN_PASSWORD_HASH=$escaped" >> .env
+    print_success "Хеш пароля администратора записан в .env"
 }
 
 # Обновление системы
@@ -353,6 +385,9 @@ build_and_run_docker() {
     docker compose build --no-cache > /dev/null 2>&1
     print_success "Docker образы собраны"
 
+    # Хеш пароля админа нужен в .env до запуска (требует собранного образа)
+    write_admin_password_hash
+
     print_info "Запуск контейнеров..."
     docker compose up -d
 
@@ -433,10 +468,13 @@ show_deployment_info() {
     echo -e "   Статус контейнеров:     ${CYAN}docker compose ps${NC}"
     echo -e "   Пересоздать данные:     ${CYAN}docker compose exec backend uv run python seed_data.py${NC}"
 
+    echo -e "\n${BOLD}🔐 Админ:${NC}"
+    echo -e "   Логин:           ${GREEN}$ADMIN_USERNAME${NC} (пароль вы задали при установке)"
+    echo -e "   Получить токен:  ${CYAN}POST https://$DOMAIN/api/auth/login${NC}"
+
     echo -e "\n${BOLD}📂 Важные файлы:${NC}"
     echo -e "   Конфигурация:    ${CYAN}.env${NC}"
-    echo -e "   Backend config:  ${CYAN}backend/.env${NC}"
-    echo -e "   База данных:     ${CYAN}backend/shop.db${NC}"
+    echo -e "   База данных:     ${CYAN}PostgreSQL (volume postgres_data)${NC}"
     echo -e "   SSL сертификаты: ${CYAN}/etc/letsencrypt/live/$DOMAIN/${NC}"
 
     echo -e "\n${BOLD}🔄 Обновление сертификатов:${NC}"
@@ -444,7 +482,7 @@ show_deployment_info() {
     echo -e "   Ручное обновление: ${CYAN}docker compose restart certbot${NC}"
 
     echo -e "\n${BOLD}📦 Структура проекта:${NC}"
-    echo -e "   Backend:  FastAPI (SQLite) - порт 8000"
+    echo -e "   Backend:  FastAPI + PostgreSQL - порт 8000"
     echo -e "   Frontend: Vue.js 3 + Vite - порт 80 (внутри контейнера)"
     echo -e "   Nginx:    Reverse Proxy + SSL - порты 80/443"
 
@@ -465,7 +503,6 @@ main() {
     print_header "НАЧАЛО УСТАНОВКИ"
 
     create_env_file
-    create_backend_env_file
     update_system
     install_dependencies
     kill_port_80

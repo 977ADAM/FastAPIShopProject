@@ -1,8 +1,8 @@
 import json
+from typing import List
 
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
-from typing import List
 from typing_extensions import Annotated
 
 
@@ -20,6 +20,17 @@ class Settings(BaseSettings):
     ]
     static_dir: str = "static"
     images_dir: str = "static/images"
+
+    # --- Admin auth (JWT) ---
+    admin_username: str = "admin"
+    # bcrypt hash of the admin password. Default is the hash of "admin" — for
+    # local dev only; override ADMIN_PASSWORD_HASH in production.
+    admin_password_hash: str = (
+        "$2b$12$pUIrXrlsNgvNKu11CZH1l.tDUOv3FIpzfVMnS6q769d5k4ZobXI1u"
+    )
+    jwt_secret: str = "change-me-in-production-with-a-long-random-secret"
+    jwt_algorithm: str = "HS256"
+    access_token_expire_minutes: int = 60
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 

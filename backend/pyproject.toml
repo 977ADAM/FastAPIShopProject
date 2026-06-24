@@ -10,10 +10,26 @@ dependencies = [
     "pydantic>=2.12.5",
     "pydantic-settings>=2.12.0",
     "python-dotenv>=1.2.1",
+    "psycopg[binary]>=3.2",
+    "alembic>=1.18.4",
+    "pyjwt>=2.13.0",
+    "bcrypt>=5.0.0",
 ]
 
 [tool.uv]
 package = false
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+extend-exclude = ["alembic/versions"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+
+[tool.ruff.lint.per-file-ignores]
+# Long product description literals are data, not code.
+"seed_data.py" = ["E501"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -25,4 +41,5 @@ filterwarnings = ["error::DeprecationWarning"]
 dev = [
     "httpx>=0.28.1",
     "pytest>=9.1.1",
+    "ruff>=0.15.19",
 ]

@@ -1,22 +1,46 @@
-version: '3.8'
-
 services:
+  db:
+    image: postgres:16-alpine
+    container_name: fashop_db
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-fashop}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-fashop}
+      - POSTGRES_DB=${POSTGRES_DB:-fashop}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-fashop} -d ${POSTGRES_DB:-fashop}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+    networks:
+      - fashop_network
+
   backend:
     build:
       context: .
       dockerfile: backend/Dockerfile
     container_name: fashop_backend
-    command: uv run --frozen --no-dev uvicorn app.main:app --host 0.0.0.0 --port 8000
+    command: >
+      sh -c "uv run --frozen --no-dev alembic upgrade head &&
+             uv run --frozen --no-dev uvicorn app.main:app --host 0.0.0.0 --port 8000"
     volumes:
       - ./backend:/app
       - backend_static:/app/static
     environment:
       - APP_NAME=${APP_NAME:-FastAPI Shop}
       - DEBUG=${DEBUG:-False}
-      - DATABASE_URL=sqlite:///./shop.db
+      - DATABASE_URL=postgresql+psycopg://${POSTGRES_USER:-fashop}:${POSTGRES_PASSWORD:-fashop}@db:5432/${POSTGRES_DB:-fashop}
       - CORS_ORIGINS=https://${DOMAIN},https://www.${DOMAIN}
+      - ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
+      - ADMIN_PASSWORD_HASH=${ADMIN_PASSWORD_HASH}
+      - JWT_SECRET=${JWT_SECRET}
     expose:
       - "8000"
+    depends_on:
+      db:
+        condition: service_healthy
     restart: unless-stopped
     networks:
       - fashop_network
@@ -74,3 +98,4 @@ networks:
 
 volumes:
   backend_static:
+  postgres_data:

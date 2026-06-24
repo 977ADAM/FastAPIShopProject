@@ -1,7 +1,10 @@
-from sqlalchemy.orm import Session, joinedload
 from typing import List, Optional
+
+from sqlalchemy.orm import Session, joinedload
+
 from ..models.product import Product
 from ..schemas.product import ProductCreate
+
 
 class ProductRepository:
     def __init__(self, db: Session):
@@ -40,3 +43,14 @@ class ProductRepository:
             .filter(Product.id.in_(product_ids))
             .all()
         )
+
+    def update(self, product: Product, fields: dict) -> Product:
+        for key, value in fields.items():
+            setattr(product, key, value)
+        self.db.commit()
+        self.db.refresh(product)
+        return product
+
+    def delete(self, product: Product) -> None:
+        self.db.delete(product)
+        self.db.commit()

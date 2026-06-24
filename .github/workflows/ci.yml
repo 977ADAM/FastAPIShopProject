@@ -8,7 +8,7 @@ on:
 
 jobs:
   backend:
-    name: Backend (uv + pytest)
+    name: Backend (ruff + alembic + pytest)
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -27,11 +27,19 @@ jobs:
       - name: Install dependencies
         run: uv sync --frozen
 
+      - name: Lint (ruff)
+        run: uv run --frozen ruff check .
+
+      - name: Migrations apply cleanly
+        run: uv run --frozen alembic upgrade head
+        env:
+          DATABASE_URL: sqlite:///./ci_migrations.db
+
       - name: Run tests
         run: uv run --frozen pytest
 
   frontend:
-    name: Frontend (lint + build)
+    name: Frontend (lint + test + build)
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -51,6 +59,9 @@ jobs:
 
       - name: Lint
         run: npm run lint
+
+      - name: Test
+        run: npm run test
 
       - name: Build
         run: npm run build

@@ -1,6 +1,8 @@
-from pydantic import BaseModel, ConfigDict, Field
 from datetime import datetime
 from typing import Optional
+
+from pydantic import BaseModel, ConfigDict, Field
+
 from .category import CategoryResponse
 
 
@@ -15,6 +17,13 @@ class ProductBase(BaseModel):
 
 class ProductCreate(ProductBase):
     pass
+
+class ProductUpdate(BaseModel):
+    name: Optional[str] = Field(None, min_length=5, max_length=200)
+    description: Optional[str] = None
+    price: Optional[float] = Field(None, gt=0)
+    category_id: Optional[int] = None
+    image_url: Optional[str] = None
 
 class ProductResponse(BaseModel):
     id: int = Field(..., description="Unique product ID")

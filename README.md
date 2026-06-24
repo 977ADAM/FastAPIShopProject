@@ -5,10 +5,12 @@
 ## Стек технологий
 
 **Backend**
-- FastAPI 0.124 + Uvicorn
-- SQLAlchemy 2.0 (SQLite)
+- FastAPI + Uvicorn
+- SQLAlchemy 2.0 + **PostgreSQL** (SQLite — для локальной разработки)
+- **Alembic** — миграции БД
 - Pydantic 2 / pydantic-settings
-- Управление зависимостями — [uv](https://docs.astral.sh/uv/)
+- JWT-аутентификация (PyJWT + bcrypt) для админских операций
+- Управление зависимостями — [uv](https://docs.astral.sh/uv/); линтер — ruff
 - Слоистая архитектура: `models → repositories → services → routes`
 
 **Frontend**
@@ -31,12 +33,15 @@ FastAPIShopProject/
 │   ├── app/
 │   │   ├── main.py            # Точка входа FastAPI, CORS, роутеры
 │   │   ├── config.py          # Настройки (pydantic-settings)
-│   │   ├── database.py        # Engine, сессии, init_db
+│   │   ├── database.py        # Engine, сессии
+│   │   ├── security.py        # JWT + bcrypt, зависимость require_admin
 │   │   ├── models/            # SQLAlchemy модели (product, category)
-│   │   ├── schemas/           # Pydantic-схемы запросов/ответов
+│   │   ├── schemas/           # Pydantic-схемы (+ auth)
 │   │   ├── repositories/      # Доступ к данным
 │   │   ├── services/          # Бизнес-логика (products, categories, cart)
-│   │   └── routes/            # API-эндпоинты
+│   │   └── routes/            # API-эндпоинты (+ auth)
+│   ├── alembic/               # Миграции БД (alembic/versions)
+│   ├── alembic.ini            # Конфигурация Alembic
 │   ├── tests/                 # Pytest-тесты (изолированная in-memory БД)
 │   ├── static/images/         # Изображения товаров
 │   ├── seed_data.py           # Наполнение БД тестовыми данными
@@ -71,6 +76,9 @@ FastAPIShopProject/
 cd backend
 uv sync                  # создаст .venv и установит зависимости из uv.lock
 
+# применить миграции (схемой управляет Alembic)
+uv run alembic upgrade head
+
 # (опционально) наполнить БД тестовыми данными
 uv run python seed_data.py
 
@@ -78,7 +86,13 @@ uv run python seed_data.py
 uv run python run.py
 ```
 
+По умолчанию локально используется SQLite (`sqlite:///./shop.db`). Для PostgreSQL
+задайте `DATABASE_URL`, например:
+`postgresql+psycopg://fashop:fashop@localhost:5432/fashop`.
+
 > Добавить зависимость: `uv add <пакет>` · обновить lock: `uv lock`
+> Миграция при изменении моделей: `uv run alembic revision --autogenerate -m "..."`
+> Линтер: `uv run ruff check .`
 
 API будет доступен на `http://localhost:8000`.
 
@@ -109,40 +123,61 @@ npm run format    # Prettier
 
 ## Тесты
 
-Backend покрыт тестами на pytest (изолированная in-memory SQLite-БД, без обращения
-к `shop.db`):
+Backend — pytest (изолированная in-memory SQLite-БД, без обращения к реальной БД):
 
 ```bash
 cd backend
 uv run pytest
 ```
 
+Frontend — Vitest (jsdom):
+
+```bash
+cd frontend
+npm run test
+```
+
 ## CI
 
 GitHub Actions (`.github/workflows/ci.yml`) на каждый push/PR в `main`:
 
-- **backend** — `uv sync` + `pytest`
-- **frontend** — `npm ci` + `lint` + `build`
+- **backend** — `ruff check` + `alembic upgrade head` + `pytest`
+- **frontend** — `npm ci` + `lint` + `test` + `build`
 - **docker** — сборка backend- и frontend-образов
 
 ## API
 
-Базовый префикс — `/api`.
+Базовый префикс — `/api`. Эндпоинты на чтение публичны; операции записи
+(`POST`/`PUT`/`DELETE` для products и categories) требуют JWT админа.
+
+### Auth
+
+| Метод | Путь | Тело | Описание |
+|-------|------|------|----------|
+| `POST` | `/api/auth/login` | `{ username, password }` | Вернёт `{ access_token }` |
+
+Защищённые запросы передают токен в заголовке: `Authorization: Bearer <token>`.
 
 ### Products
 
-| Метод | Путь | Описание |
-|-------|------|----------|
-| `GET` | `/api/products` | Список всех товаров |
-| `GET` | `/api/products/{product_id}` | Товар по ID |
-| `GET` | `/api/products/category/{category_id}` | Товары по категории |
+| Метод | Путь | Доступ | Описание |
+|-------|------|--------|----------|
+| `GET` | `/api/products` | публично | Список всех товаров |
+| `GET` | `/api/products/{product_id}` | публично | Товар по ID |
+| `GET` | `/api/products/category/{category_id}` | публично | Товары по категории |
+| `POST` | `/api/products` | админ | Создать товар |
+| `PUT` | `/api/products/{product_id}` | админ | Обновить товар |
+| `DELETE` | `/api/products/{product_id}` | админ | Удалить товар |
 
 ### Categories
 
-| Метод | Путь | Описание |
-|-------|------|----------|
-| `GET` | `/api/categories` | Список всех категорий |
-| `GET` | `/api/categories/{category_id}` | Категория по ID |
+| Метод | Путь | Доступ | Описание |
+|-------|------|--------|----------|
+| `GET` | `/api/categories` | публично | Список всех категорий |
+| `GET` | `/api/categories/{category_id}` | публично | Категория по ID |
+| `POST` | `/api/categories` | админ | Создать категорию |
+| `PUT` | `/api/categories/{category_id}` | админ | Обновить категорию |
+| `DELETE` | `/api/categories/{category_id}` | админ | Удалить категорию (если без товаров) |
 
 ### Cart
 
@@ -166,12 +201,22 @@ GitHub Actions (`.github/workflows/ci.yml`) на каждый push/PR в `main`:
 |------------|--------------|----------|
 | `APP_NAME` | `FastAPI Shop` | Название приложения |
 | `DEBUG` | `True` | Режим отладки / авто-reload |
-| `DATABASE_URL` | `sqlite:///./shop.db` | Строка подключения к БД |
-| `CORS_ORIGINS` | localhost:5173, 3000 | Разрешённые источники CORS |
+| `DATABASE_URL` | `sqlite:///./shop.db` | Строка подключения к БД (в Docker — PostgreSQL) |
+| `CORS_ORIGINS` | localhost:5173, 3000 | Источники CORS (через запятую или JSON) |
 | `STATIC_DIR` | `static` | Каталог статики |
 | `IMAGES_DIR` | `static/images` | Каталог изображений |
+| `ADMIN_USERNAME` | `admin` | Логин администратора |
+| `ADMIN_PASSWORD_HASH` | (хеш «admin») | bcrypt-хеш пароля админа |
+| `JWT_SECRET` | (заглушка) | Секрет для подписи JWT — **обязательно сменить в проде** |
+| `ACCESS_TOKEN_EXPIRE_MINUTES` | `60` | Время жизни токена |
 
-Frontend использует переменную сборки `VITE_API_BASE_URL` (базовый URL API).
+В Docker значения БД и админа приходят из корневого `.env` через docker-compose
+(`POSTGRES_*`, `ADMIN_*`, `JWT_SECRET`). Frontend использует переменную сборки
+`VITE_API_BASE_URL`.
+
+> Сгенерировать bcrypt-хеш пароля:
+> `docker compose run --rm backend uv run python -c "import bcrypt;print(bcrypt.hashpw(b'PASS', bcrypt.gensalt()).decode())"`
+> При ручной вставке в `.env` экранируйте `$` как `$$`.
 
 ## Деплой на VPS (Ubuntu)
 
@@ -197,16 +242,18 @@ docker compose logs -f         # логи всех сервисов
 docker compose logs -f backend # логи backend
 docker compose restart         # перезапуск
 docker compose down            # остановка
-docker compose exec backend python seed_data.py   # пересоздать тестовые данные
+docker compose exec backend uv run python seed_data.py   # пересоздать тестовые данные
 ```
 
+Миграции применяются автоматически при старте backend (`alembic upgrade head`).
 Сертификаты Let's Encrypt обновляются автоматически контейнером `certbot`.
 
 ## Сервисы Docker Compose
 
 | Сервис | Назначение | Порт |
 |--------|------------|------|
-| `backend` | FastAPI + SQLite | 8000 (internal) |
+| `db` | PostgreSQL 16 (volume `postgres_data`) | 5432 (internal) |
+| `backend` | FastAPI + Alembic + PostgreSQL | 8000 (internal) |
 | `frontend` | Собранный Vue + Nginx | 80 (internal) |
 | `nginx` | Reverse proxy + SSL | 80, 443 |
 | `certbot` | Авто-обновление сертификатов | — |

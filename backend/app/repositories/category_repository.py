@@ -1,7 +1,10 @@
-from sqlalchemy.orm import Session
 from typing import List, Optional
+
+from sqlalchemy.orm import Session
+
 from ..models.category import Category
 from ..schemas.category import CategoryCreate
+
 
 class CategoryRepository:
     def __init__(self, db: Session):
@@ -22,3 +25,14 @@ class CategoryRepository:
         self.db.commit()
         self.db.refresh(db_category)
         return db_category
+
+    def update(self, category: Category, fields: dict) -> Category:
+        for key, value in fields.items():
+            setattr(category, key, value)
+        self.db.commit()
+        self.db.refresh(category)
+        return category
+
+    def delete(self, category: Category) -> None:
+        self.db.delete(category)
+        self.db.commit()

@@ -1,5 +1,7 @@
-from pydantic import BaseModel, Field
 from typing import Optional
+
+from pydantic import BaseModel, Field
+
 
 class CartItemBase(BaseModel):
     product_id: int = Field(..., description="Product ID")

@@ -1,0 +1,24 @@
+# Backend build context = repo root, so this file governs the backend image.
+
+.git
+.github
+*.md
+.env
+.env.example
+
+# Everything outside backend is irrelevant to the backend image
+frontend
+nginx
+certbot
+deploy.sh
+docker-compose.yml
+
+# Backend artifacts that must never be baked into the image
+backend/.venv
+backend/.env
+backend/shop.db
+backend/*.db
+backend/**/__pycache__
+backend/.pytest_cache
+backend/.ruff_cache
+backend/tests

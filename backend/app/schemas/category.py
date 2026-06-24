@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -9,6 +11,10 @@ class CategoryBase(BaseModel):
 
 class CategoryCreate(CategoryBase):
     pass
+
+class CategoryUpdate(BaseModel):
+    name: Optional[str] = Field(None, min_length=5, max_length=100)
+    slug: Optional[str] = Field(None, min_length=5, max_length=100)
 
 class CategoryResponse(CategoryBase):
     id: int = Field(..., description='Unique category identifier')
