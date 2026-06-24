@@ -507,14 +507,22 @@ update_backend_dockerfile() {
     cat > backend/Dockerfile << EOF
 FROM python:3.11-slim
 
+# Устанавливаем uv из официального образа
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y \\
     gcc \\
     && rm -rf /var/lib/apt/lists/*
 
-COPY backend/requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+ENV UV_COMPILE_BYTECODE=1 \\
+    UV_LINK_MODE=copy \\
+    PATH="/app/.venv/bin:\$PATH"
+
+# Устанавливаем зависимости отдельным слоем (кэшируется при неизменных pyproject/lock)
+COPY backend/pyproject.toml backend/uv.lock ./
+RUN uv sync --frozen --no-dev --no-install-project
 
 COPY backend/ .
 
@@ -525,7 +533,7 @@ RUN chmod -R 755 static
 
 EXPOSE 8000
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uv", "run", "--frozen", "--no-dev", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
 EOF
 
     print_success "backend/Dockerfile обновлен"
@@ -623,7 +631,7 @@ seed_database() {
     sleep 5
 
     print_info "Запуск скрипта seed_data.py..."
-    docker compose exec -T backend python backend/seed_data.py
+    docker compose exec -T backend uv run --frozen --no-dev python backend/seed_data.py
 
     if [ $? -eq 0 ]; then
         print_success "База данных успешно заполнена"
@@ -676,7 +684,7 @@ show_deployment_info() {
     echo -e "   Перезапуск:             ${CYAN}docker compose restart${NC}"
     echo -e "   Остановка:              ${CYAN}docker compose down${NC}"
     echo -e "   Статус контейнеров:     ${CYAN}docker compose ps${NC}"
-    echo -e "   Пересоздать данные:     ${CYAN}docker compose exec backend python backend/seed_data.py${NC}"
+    echo -e "   Пересоздать данные:     ${CYAN}docker compose exec backend uv run python backend/seed_data.py${NC}"
 
     echo -e "\n${BOLD}📂 Важные файлы:${NC}"
     echo -e "   Конфигурация:    ${CYAN}.env${NC}"
