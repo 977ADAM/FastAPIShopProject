@@ -19,14 +19,14 @@
 
     <!-- Информация о товаре -->
     <div class="min-w-0 flex-grow">
-      <h3 class="font-bold uppercase tracking-tight">
+      <h3 class="font-sans font-bold uppercase tracking-tight text-ink">
         {{ item.name }}
       </h3>
-      <p class="mt-1 font-mono text-xs text-muted">${{ item.price.toFixed(2) }} each</p>
+      <p class="mt-1 font-sans text-xs text-muted">{{ formatPrice(item.price) }} за шт</p>
 
       <!-- Управление количеством -->
       <div class="mt-3 flex items-center gap-4">
-        <div class="flex items-center font-mono">
+        <div class="flex items-center font-sans">
           <button
             type="button"
             @click="decreaseQuantity"
@@ -55,16 +55,16 @@
           type="button"
           @click="handleRemove"
           :disabled="updating"
-          class="cursor-pointer font-mono text-xs tracking-wide text-accent disabled:opacity-50"
+          class="cursor-pointer font-sans text-xs font-medium tracking-wide text-muted underline disabled:opacity-50"
         >
-          REMOVE
+          Удалить
         </button>
       </div>
     </div>
 
     <!-- Сумма -->
     <div class="text-right">
-      <p class="font-extrabold">${{ item.subtotal.toFixed(2) }}</p>
+      <p class="font-sans font-extrabold text-ink">{{ formatPrice(item.subtotal) }}</p>
     </div>
   </div>
 </template>
@@ -72,6 +72,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useCartStore } from '@/stores/cart'
+import { formatPrice } from '@/utils/format'
 
 // Props
 const props = defineProps({

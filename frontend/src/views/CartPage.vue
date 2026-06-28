@@ -6,17 +6,17 @@
 
 <template>
   <main class="mx-auto max-w-[1100px] px-6 py-10 md:px-12">
-    <h1 class="font-black text-4xl uppercase tracking-tight">Cart</h1>
+    <h1 class="font-sans font-extrabold text-4xl uppercase tracking-tight text-ink">Корзина</h1>
 
-    <p v-if="cartStore.loading" class="mt-8 font-mono text-sm text-muted">Loading…</p>
+    <p v-if="cartStore.loading" class="mt-8 font-sans text-sm text-muted">Загрузка…</p>
 
-    <div v-else-if="!cartStore.hasItems" class="mt-10 border border-border bg-white p-12 text-center font-mono text-sm tracking-wide text-muted">
-      YOUR CART IS EMPTY
-      <div class="mt-4"><RouterLink to="/" class="text-accent">← Back to catalog</RouterLink></div>
+    <div v-else-if="!cartStore.hasItems" class="mt-10 border border-border bg-surface p-12 text-center font-sans text-sm tracking-wide text-muted">
+      Корзина пуста
+      <div class="mt-4"><RouterLink to="/" class="font-bold text-ink underline">← В каталог</RouterLink></div>
     </div>
 
     <div v-else class="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[1fr_320px]">
-      <div class="border border-border bg-white">
+      <div class="border border-border bg-surface">
         <CartItem
           v-for="item in cartStore.cartDetails?.items || []"
           :key="item.product_id"
@@ -24,26 +24,26 @@
         />
       </div>
 
-      <aside class="h-fit border-2 border-ink bg-white p-7">
-        <h2 class="font-black text-xl uppercase">Order summary</h2>
+      <aside class="h-fit border-2 border-ink bg-surface p-7">
+        <h2 class="font-sans font-extrabold text-xl uppercase tracking-tight text-ink">Сумма заказа</h2>
         <div class="mt-6 flex items-baseline justify-between">
-          <span class="font-mono text-xs tracking-wide text-muted">TOTAL</span>
-          <span class="font-black text-2xl">${{ cartStore.totalPrice.toFixed(2) }}</span>
+          <span class="font-sans text-xs font-medium tracking-wide text-muted">Итого</span>
+          <span class="font-sans font-extrabold text-2xl text-ink">{{ formatPrice(cartStore.totalPrice) }}</span>
         </div>
         <button
           type="button"
           data-test="checkout"
-          class="emp-press mt-6 w-full cursor-pointer bg-accent py-4 font-mono text-sm font-bold tracking-wide text-white"
+          class="emp-press mt-6 w-full cursor-pointer bg-accent py-4 font-sans text-sm font-bold tracking-wide text-ink"
           @click="handleCheckout"
         >
-          PROCEED TO CHECKOUT →
+          Оформить заказ →
         </button>
         <button
           type="button"
-          class="mt-3 w-full cursor-pointer border border-ink py-3 font-mono text-xs tracking-wide"
+          class="mt-3 w-full cursor-pointer border border-ink py-3 font-sans text-xs font-medium tracking-wide text-ink"
           @click="handleClearCart"
         >
-          CLEAR CART
+          Очистить корзину
         </button>
       </aside>
     </div>
@@ -54,6 +54,7 @@
 import { onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useCartStore } from '@/stores/cart'
+import { formatPrice } from '@/utils/format'
 import CartItem from '@/components/CartItem.vue'
 
 const cartStore = useCartStore()
@@ -70,7 +71,7 @@ async function handleCheckout() {
   if (!email) return
   try {
     const order = await cartStore.checkout({ name, email })
-    alert(`Заказ #${order.id} оформлен! Сумма: $${order.total.toFixed(2)}`)
+    alert(`Заказ #${order.id} оформлен! Сумма: ${formatPrice(order.total)}`)
   } catch (err) {
     const detail = err.response?.data?.detail || 'Не удалось оформить заказ'
     alert(detail)
@@ -81,7 +82,7 @@ async function handleCheckout() {
  * Очистить корзину с подтверждением
  */
 function handleClearCart() {
-  if (confirm('Are you sure you want to clear your cart?')) {
+  if (confirm('Очистить корзину?')) {
     cartStore.clearCart()
   }
 }
