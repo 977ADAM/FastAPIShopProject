@@ -37,6 +37,29 @@ def test_search_filters_by_name(client, seeded_db, auth_headers):
     assert data["products"][0]["name"] == "Blue Sneakers"
 
 
+def test_search_matches_brand_and_sku(client, seeded_db, auth_headers):
+    cat = seeded_db["category"].id
+    client.post(
+        "/api/products",
+        headers=auth_headers,
+        json={
+            "name": "Ручка гелевая",
+            "price": 89,
+            "category_id": cat,
+            "brand": "Pilot",
+            "sku": "PIL-G2-BL",
+        },
+    )
+
+    by_brand = client.get("/api/products", params={"search": "pilot"}).json()
+    assert by_brand["total"] == 1
+    assert by_brand["products"][0]["sku"] == "PIL-G2-BL"
+
+    by_sku = client.get("/api/products", params={"search": "pil-g2"}).json()
+    assert by_sku["total"] == 1
+    assert by_sku["products"][0]["brand"] == "Pilot"
+
+
 def test_pagination_limit_and_total(client, seeded_db, auth_headers):
     cat = seeded_db["category"].id
     for i in range(4):
