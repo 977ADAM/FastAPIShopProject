@@ -7,11 +7,14 @@ import { useUiStore } from '@/stores/ui'
 
 const product = {
   id: 1,
-  name: 'Wireless Headphones',
-  price: 299.99,
+  name: 'Ручка гелевая Pilot G-2',
+  price: 89,
   image_url: 'http://example.com/img.jpg',
   stock: 5,
-  category: { id: 1, name: 'Electronics' },
+  brand: 'Pilot',
+  unit: 'шт',
+  pack_qty: 1,
+  category: { id: 1, name: 'Письменные принадлежности' },
 }
 
 function mountCard() {
@@ -25,11 +28,12 @@ function mountCard() {
 }
 
 describe('ProductCard', () => {
-  it('renders name, category and price', () => {
+  it('renders name, category, brand and ₽ price', () => {
     const wrapper = mountCard()
-    expect(wrapper.text()).toContain('Wireless Headphones')
-    expect(wrapper.text()).toContain('Electronics')
-    expect(wrapper.text()).toContain('299.99')
+    expect(wrapper.text()).toContain('Ручка гелевая Pilot G-2')
+    expect(wrapper.text()).toContain('Письменные принадлежности')
+    expect(wrapper.text()).toContain('Pilot')
+    expect(wrapper.text()).toContain('89 ₽')
   })
 
   it('add button calls cart.addToCart and shows toast', async () => {
