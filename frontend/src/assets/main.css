@@ -1,19 +1,18 @@
 @import 'tailwindcss';
 
 @theme {
-  --color-bg: #e7e7e2;
+  --color-bg: #f7f1e3;
   --color-surface: #ffffff;
-  --color-ink: #111111;
-  --color-accent: #e11d2e;
-  --color-accent-ink: #ffffff;
-  --color-border: #e2e2dc;
-  --color-muted: #7a7a74;
+  --color-ink: #1f2a44;
+  --color-accent: #f0b429;
+  --color-accent-ink: #1f2a44;
+  --color-sale: #d64545;
+  --color-border: #e7ddc7;
+  --color-muted: #8a7f63;
   --color-success: #16a34a;
   --color-warning: #f59e0b;
 
-  --font-sans: 'Archivo', system-ui, sans-serif;
-  --font-black: 'Archivo Black', sans-serif;
-  --font-mono: 'Space Mono', monospace;
+  --font-sans: 'Rubik', system-ui, sans-serif;
 }
 
 @layer base {
@@ -31,7 +30,7 @@
 
 /* Patterned placeholder for missing imagery */
 .placeholder-hatch {
-  background: repeating-linear-gradient(45deg, #ecece7 0 12px, #e4e4de 12px 24px);
+  background: repeating-linear-gradient(45deg, #efe7d3 0 12px, #e7ddc7 12px 24px);
 }
 
 /* Brutalist marquee animation */
