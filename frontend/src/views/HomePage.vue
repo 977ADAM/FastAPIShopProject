@@ -3,21 +3,21 @@
     <!-- HERO -->
     <section class="relative flex flex-col overflow-hidden md:flex-row" style="background:#efece4">
       <div class="z-[2] flex max-w-[760px] flex-1 flex-col justify-center px-6 py-14 md:px-12">
-        <span class="font-mono text-xs tracking-[3px] text-accent">FASTAPI SHOP — ONLINE STORE</span>
-        <h1 class="mt-4 font-black text-5xl uppercase leading-[0.9] tracking-tight md:text-7xl">
-          Shop<br /><span class="text-accent">everything.</span>
+        <span class="font-sans text-xs font-semibold tracking-[3px] text-accent">КАНЦЕЛЯРИЯ №1 — ВСЁ ДЛЯ ШКОЛЫ И ОФИСА</span>
+        <h1 class="mt-4 font-sans font-extrabold text-5xl uppercase leading-[0.9] tracking-tight md:text-7xl">
+          Соберись<br /><span class="text-accent">к учёбе</span>
         </h1>
         <p class="mt-6 max-w-[430px] text-base leading-relaxed text-neutral-600">
-          A curated catalog of electronics, apparel, books and more. Fast, clean, no nonsense.
+          Ручки, тетради, бумага и всё для офиса. Доставка от 1 штуки — быстро и без лишнего.
         </p>
         <div class="mt-8 flex gap-3">
-          <a href="#catalog" class="emp-press cursor-pointer bg-accent px-7 py-4 font-mono text-[13px] font-bold tracking-wide text-white">SHOP NOW →</a>
+          <a href="#catalog" class="emp-press cursor-pointer bg-accent px-7 py-4 font-sans text-[13px] font-bold tracking-wide text-ink">В КАТАЛОГ →</a>
         </div>
       </div>
       <div class="relative flex flex-1 flex-col justify-between overflow-hidden p-10" style="background:radial-gradient(circle at 52% 44%, #343434 0%, #161616 58%, #111 100%)">
         <div class="flex items-center justify-between">
-          <span class="font-mono text-xs tracking-[3px] text-neutral-500">FEATURED</span>
-          <div class="emp-badge flex h-[92px] w-[92px] rotate-12 items-center justify-center rounded-full bg-accent text-center font-mono text-[11px] font-bold leading-tight text-white">NEW<br />DROP</div>
+          <span class="font-sans text-xs font-semibold tracking-[3px] text-neutral-500">ХИТЫ</span>
+          <div class="emp-badge flex h-[92px] w-[92px] rotate-12 items-center justify-center rounded-full bg-accent text-center font-sans text-[11px] font-bold leading-tight text-ink">НОВИНКИ<br />КАТАЛОГ</div>
         </div>
         <img v-if="featured?.image_url" :src="featured.image_url" :alt="featured.name" class="mx-auto max-h-[260px] object-contain" />
       </div>
@@ -39,15 +39,15 @@
     <!-- CATALOG -->
     <section id="catalog" class="mx-auto max-w-[1440px] px-6 pb-16 pt-8 md:px-12">
       <div class="mb-6 flex items-baseline justify-between">
-        <h2 class="m-0 font-black text-3xl uppercase tracking-tight">
-          {{ store.selectedCategory ? activeCategoryName : 'Best sellers' }}
+        <h2 class="m-0 font-sans font-extrabold text-3xl uppercase tracking-tight">
+          {{ store.selectedCategory ? activeCategoryName : 'Хиты продаж' }}
         </h2>
-        <button v-if="store.selectedCategory" class="font-mono text-xs tracking-wide text-ink underline decoration-accent decoration-2" @click="store.clearCategoryFilter()">
-          ALL PRODUCTS →
+        <button v-if="store.selectedCategory" class="font-sans text-xs font-semibold tracking-wide text-ink underline decoration-accent decoration-2" @click="store.clearCategoryFilter()">
+          ВЕСЬ КАТАЛОГ →
         </button>
       </div>
 
-      <p v-if="store.loading" class="font-mono text-sm text-muted">Loading…</p>
+      <p v-if="store.loading" class="font-sans text-sm text-muted">Загрузка…</p>
       <div v-else class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
         <ProductCard v-for="p in store.filteredProducts" :key="p.id" :product="p" />
       </div>

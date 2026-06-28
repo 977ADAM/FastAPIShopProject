@@ -26,7 +26,7 @@ describe('CartDrawer', () => {
     ui.cartOpen = true
     await wrapper.vm.$nextTick()
     expect(wrapper.find('[data-test="cart-drawer"]').exists()).toBe(true)
-    expect(wrapper.text().toLowerCase()).toContain('empty')
+    expect(wrapper.text()).toContain('Корзина пуста')
   })
 
   it('renders line items from cart details', async () => {
@@ -42,6 +42,6 @@ describe('CartDrawer', () => {
     ui.cartOpen = true
     await wrapper.vm.$nextTick()
     expect(wrapper.text()).toContain('Wireless Headphones')
-    expect(wrapper.text()).toContain('599.98')
+    expect(wrapper.text()).toContain('600 ₽')
   })
 })

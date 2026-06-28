@@ -4,9 +4,9 @@
       class="emp-cat-circle placeholder-hatch flex h-24 w-24 items-center justify-center rounded-full border border-ink"
       :class="{ 'border-accent': active }"
     >
-      <span class="font-mono text-[11px] tracking-wide text-muted">{{ short }}</span>
+      <span class="font-sans text-[11px] font-semibold tracking-wide text-muted">{{ short }}</span>
     </span>
-    <span class="font-mono text-[11px] uppercase tracking-wide text-ink">{{ category.name }}</span>
+    <span class="font-sans text-[11px] font-semibold uppercase tracking-wide text-ink">{{ category.name }}</span>
   </button>
 </template>
 

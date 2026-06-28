@@ -101,3 +101,44 @@ def test_upload_requires_auth(client):
         files={"file": ("pic.png", io.BytesIO(b"x"), "image/png")},
     )
     assert res.status_code == 401
+
+
+# --- Stationery product fields ----------------------------------------------
+
+def test_create_product_with_stationery_fields(client, seeded_db, auth_headers):
+    category_id = seeded_db["category"].id
+    payload = {
+        "name": "Ручка гелевая Pilot G-2",
+        "description": "Синяя, 0.7 мм",
+        "price": 89,
+        "category_id": category_id,
+        "brand": "Pilot",
+        "sku": "PIL-G2-BL",
+        "unit": "упаковка",
+        "pack_qty": 12,
+    }
+    resp = client.post("/api/products", headers=auth_headers, json=payload)
+    assert resp.status_code == 201, resp.text
+    body = resp.json()
+    assert body["brand"] == "Pilot"
+    assert body["sku"] == "PIL-G2-BL"
+    assert body["unit"] == "упаковка"
+    assert body["pack_qty"] == 12
+
+
+def test_product_defaults_unit_and_pack_qty(client, seeded_db, auth_headers):
+    category_id = seeded_db["category"].id
+    payload = {"name": "Ластик", "price": 25, "category_id": category_id}
+    resp = client.post("/api/products", headers=auth_headers, json=payload)
+    assert resp.status_code == 201, resp.text
+    body = resp.json()
+    assert body["unit"] == "шт"
+    assert body["pack_qty"] == 1
+    assert body["brand"] is None
+
+
+def test_short_product_name_is_allowed(client, seeded_db, auth_headers):
+    category_id = seeded_db["category"].id
+    payload = {"name": "Клей", "price": 60, "category_id": category_id}
+    resp = client.post("/api/products", headers=auth_headers, json=payload)
+    assert resp.status_code == 201, resp.text

@@ -22,6 +22,14 @@ class Product(Base):
     )
     image_url: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     stock: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default="0")
+    brand: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    sku: Mapped[Optional[str]] = mapped_column(String, nullable=True, index=True)
+    unit: Mapped[str] = mapped_column(
+        String, nullable=False, default="шт", server_default="шт"
+    )
+    pack_qty: Mapped[int] = mapped_column(
+        Integer, nullable=False, default=1, server_default="1"
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default=lambda: datetime.now(timezone.utc)
     )

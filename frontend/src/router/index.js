@@ -21,7 +21,7 @@ const router = createRouter({
       name: 'home',
       component: HomePage,
       meta: {
-        title: 'Shop - Home',
+        title: 'Канцелярия №1 — Всё для школы и офиса',
       },
     },
     {
@@ -29,7 +29,7 @@ const router = createRouter({
       name: 'product-detail',
       component: ProductDetailPage,
       meta: {
-        title: 'Product Details',
+        title: 'Товар — Канцелярия №1',
       },
     },
     {
@@ -37,7 +37,7 @@ const router = createRouter({
       name: 'cart',
       component: CartPage,
       meta: {
-        title: 'Shopping Cart',
+        title: 'Корзина — Канцелярия №1',
       },
     },
     {
@@ -45,7 +45,7 @@ const router = createRouter({
       name: 'admin-login',
       component: AdminLogin,
       meta: {
-        title: 'Admin — Login',
+        title: 'Вход — Админка',
       },
     },
     {
@@ -53,7 +53,7 @@ const router = createRouter({
       name: 'admin',
       component: AdminProducts,
       meta: {
-        title: 'Admin — Products',
+        title: 'Товары — Админка',
         requiresAuth: true,
       },
     },
@@ -62,7 +62,7 @@ const router = createRouter({
       name: 'admin-orders',
       component: AdminOrders,
       meta: {
-        title: 'Admin — Orders',
+        title: 'Заказы — Админка',
         requiresAuth: true,
       },
     },
@@ -79,7 +79,7 @@ const router = createRouter({
 
 // Обновление заголовка + защита админских маршрутов
 router.beforeEach((to, from, next) => {
-  document.title = to.meta.title || 'FastAPI Shop'
+  document.title = to.meta.title || 'Канцелярия №1'
   if (to.meta.requiresAuth) {
     const auth = useAuthStore()
     if (!auth.isAuthenticated) {

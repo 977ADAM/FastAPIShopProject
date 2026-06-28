@@ -3,7 +3,7 @@
     <div
       v-if="ui.toast"
       data-test="toast"
-      class="fixed bottom-7 left-1/2 z-[120] -translate-x-1/2 border-2 border-accent bg-ink px-6 py-3.5 font-mono text-sm font-bold tracking-wide text-accent"
+      class="fixed bottom-7 left-1/2 z-[120] -translate-x-1/2 border-2 border-accent bg-ink px-6 py-3.5 font-sans text-sm font-bold tracking-wide text-accent"
     >
       ✦ {{ ui.toast }}
     </div>
