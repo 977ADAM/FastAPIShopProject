@@ -1,7 +1,7 @@
 # backend/seed_data.py
 """
-Скрипт для заполнения базы данных тестовыми данными.
-Создает категории и товары для демонстрации работы приложения.
+Скрипт для заполнения базы данных демонстрационными данными канцелярского магазина «Канцелярия №1».
+Создает категории и товары канцелярских принадлежностей для демонстрации работы приложения.
 Использует placeholder изображения с unsplash.com.
 """
 
@@ -21,10 +21,11 @@ def create_categories(db):
         dict: Словарь созданных категорий {slug: Category}
     """
     categories_data = [
-        {"name": "Electronics", "slug": "electronics"},
-        {"name": "Clothing", "slug": "clothing"},
-        {"name": "Books", "slug": "books"},
-        {"name": "Home & Garden", "slug": "home-garden"},
+        {"name": "Письменные принадлежности", "slug": "pismennye"},
+        {"name": "Тетради и бумага", "slug": "bumaga"},
+        {"name": "Школьные товары", "slug": "shkolnye"},
+        {"name": "Офисные принадлежности", "slug": "ofisnye"},
+        {"name": "Рисование и творчество", "slug": "tvorchestvo"},
     ]
 
     categories = {}
@@ -51,104 +52,36 @@ def create_products(db, categories):
         categories: Словарь категорий
     """
     products_data = [
-        # Electronics
-        {
-            "name": "Wireless Headphones",
-            "description": "High-quality wireless headphones with noise cancellation. Perfect for music lovers and professionals. Battery life up to 30 hours.",
-            "price": 299.99,
-            "category_id": categories["electronics"].id,
-            "image_url": "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400"
-        },
-        {
-            "name": "Smart Watch Pro",
-            "description": "Advanced smartwatch with fitness tracking, heart rate monitor, and GPS. Water resistant up to 50m. Compatible with iOS and Android.",
-            "price": 399.99,
-            "category_id": categories["electronics"].id,
-            "image_url": "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400"
-        },
-        {
-            "name": "Laptop Stand",
-            "description": "Ergonomic aluminum laptop stand. Adjustable height and angle. Improves posture and reduces neck strain. Compatible with all laptop sizes.",
-            "price": 49.99,
-            "category_id": categories["electronics"].id,
-            "image_url": "https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=400"
-        },
-        {
-            "name": "USB-C Hub",
-            "description": "Multi-port USB-C hub with HDMI, USB 3.0, and SD card reader. Fast data transfer and 4K video output. Compact design perfect for travel.",
-            "price": 79.99,
-            "category_id": categories["electronics"].id,
-            "image_url": "https://images.unsplash.com/photo-1625948515291-69613efd103f?w=400"
-        },
-        {
-            "name": "Wireless Keyboard",
-            "description": "Compact wireless keyboard with mechanical switches. Long battery life and ergonomic design. Perfect for both work and gaming.",
-            "price": 89.99,
-            "category_id": categories["electronics"].id,
-            "image_url": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400"
-        },
+        # Письменные принадлежности
+        {"name": "Ручка гелевая Pilot G-2", "description": "Гелевая ручка 0.7 мм, синие чернила. Плавное письмо, удобный грип.", "price": 89, "brand": "Pilot", "sku": "PIL-G2-BL", "unit": "шт", "pack_qty": 1, "category_id": categories["pismennye"].id, "image_url": "https://images.unsplash.com/photo-1583485088034-697b5bc54ccd?w=400"},
+        {"name": "Карандаш чернографитный HB", "description": "Классический карандаш твёрдости HB, заточенный. Набор 12 шт.", "price": 145, "brand": "Koh-i-Noor", "sku": "KIN-HB-12", "unit": "упаковка", "pack_qty": 12, "category_id": categories["pismennye"].id, "image_url": "https://images.unsplash.com/photo-1587145820266-a5951ee6f620?w=400"},
+        {"name": "Маркер текстовый набор 4 цв.", "description": "Флуоресцентные текстовыделители, скошенный наконечник. 4 цвета.", "price": 210, "brand": "Stabilo", "sku": "STB-BOSS-4", "unit": "упаковка", "pack_qty": 4, "category_id": categories["pismennye"].id, "image_url": "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=400"},
+        {"name": "Ручка шариковая синяя", "description": "Шариковая ручка 0.5 мм, экономичный расход. Упаковка 50 шт.", "price": 390, "brand": "ErichKrause", "sku": "EK-R301-50", "unit": "упаковка", "pack_qty": 50, "category_id": categories["pismennye"].id, "image_url": "https://images.unsplash.com/photo-1625480860249-be231d1e1d0f?w=400"},
 
-        # Clothing
-        {
-            "name": "Running Shoes",
-            "description": "Comfortable running shoes with excellent cushioning. Breathable mesh upper and durable rubber sole. Perfect for jogging and gym workouts.",
-            "price": 129.99,
-            "category_id": categories["clothing"].id,
-            "image_url": "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400"
-        },
+        # Тетради и бумага
+        {"name": "Тетрадь 48 л. в клетку", "description": "Тетрадь на скрепке, обложка картон, клетка. Плотная бумага.", "price": 65, "brand": "ErichKrause", "sku": "EK-48-KL", "unit": "шт", "pack_qty": 1, "category_id": categories["bumaga"].id, "image_url": "https://images.unsplash.com/photo-1531346878377-a5be20888e57?w=400"},
+        {"name": "Бумага А4 «SvetoCopy» 500 л.", "description": "Офисная бумага для печати, белизна 146% CIE, плотность 80 г/м².", "price": 540, "brand": "SvetoCopy", "sku": "SC-A4-500", "unit": "упаковка", "pack_qty": 500, "category_id": categories["bumaga"].id, "image_url": "https://images.unsplash.com/photo-1568871391541-1d62a0d54c89?w=400"},
+        {"name": "Блокнот на пружине А5", "description": "Блокнот 80 листов, твёрдая обложка, перфорация. Клетка.", "price": 230, "brand": "Hatber", "sku": "HAT-A5-80", "unit": "шт", "pack_qty": 1, "category_id": categories["bumaga"].id, "image_url": "https://images.unsplash.com/photo-1517842645767-c639042777db?w=400"},
+        {"name": "Стикеры клейкие 76×76 мм", "description": "Самоклеящиеся листки, неоновые цвета, 100 листов в блоке.", "price": 120, "brand": "Global Notes", "sku": "GN-76-100", "unit": "упаковка", "pack_qty": 100, "category_id": categories["bumaga"].id, "image_url": "https://images.unsplash.com/photo-1606326608606-aa0b62935f2b?w=400"},
 
-        # Books
-        {
-            "name": "Python Programming Guide",
-            "description": "Comprehensive guide to Python programming. From basics to advanced topics. Includes practical examples and exercises. Perfect for beginners and intermediate programmers.",
-            "price": 45.99,
-            "category_id": categories["books"].id,
-            "image_url": "https://images.unsplash.com/photo-1589998059171-988d887df646?w=400"
-        },
-        {
-            "name": "The Art of Design",
-            "description": "Inspirational book about design principles and creative thinking. Beautiful illustrations and case studies from famous designers.",
-            "price": 39.99,
-            "category_id": categories["books"].id,
-            "image_url": "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400"
-        },
-        {
-            "name": "Cooking Masterclass",
-            "description": "Professional cooking techniques and recipes. Step-by-step instructions with beautiful photography. Learn from world-class chefs.",
-            "price": 49.99,
-            "category_id": categories["books"].id,
-            "image_url": "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400"
-        },
+        # Школьные товары
+        {"name": "Пенал школьный", "description": "Пенал на молнии, два отделения, прочный текстиль.", "price": 340, "brand": "Brauberg", "sku": "BRG-PEN-01", "unit": "шт", "pack_qty": 1, "category_id": categories["shkolnye"].id, "image_url": "https://images.unsplash.com/photo-1546548970-71785318a17b?w=400"},
+        {"name": "Рюкзак школьный", "description": "Ортопедическая спинка, светоотражатели, два больших отделения.", "price": 2490, "brand": "Brauberg", "sku": "BRG-BAG-22", "unit": "шт", "pack_qty": 1, "category_id": categories["shkolnye"].id, "image_url": "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400"},
+        {"name": "Дневник школьный", "description": "Дневник в твёрдой обложке, 48 листов, справочный материал.", "price": 180, "brand": "Hatber", "sku": "HAT-DN-48", "unit": "шт", "pack_qty": 1, "category_id": categories["shkolnye"].id, "image_url": "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400"},
+        {"name": "Обложки для тетрадей 20 шт.", "description": "Универсальные плотные обложки ПВХ, набор 20 штук.", "price": 95, "brand": "ErichKrause", "sku": "EK-OBL-20", "unit": "упаковка", "pack_qty": 20, "category_id": categories["shkolnye"].id, "image_url": "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=400"},
 
-        # Home & Garden
-        {
-            "name": "Plant Pot Set",
-            "description": "Set of 3 ceramic plant pots with drainage holes. Modern design perfect for indoor plants. Includes saucers to protect furniture.",
-            "price": 34.99,
-            "category_id": categories["home-garden"].id,
-            "image_url": "https://images.unsplash.com/photo-1485955900006-10f4d324d411?w=400"
-        },
-        {
-            "name": "LED Desk Lamp",
-            "description": "Adjustable LED desk lamp with touch control. Multiple brightness levels and color temperatures. Energy efficient and eye-friendly.",
-            "price": 59.99,
-            "category_id": categories["home-garden"].id,
-            "image_url": "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=400"
-        },
-        {
-            "name": "Throw Pillow Set",
-            "description": "Set of 2 decorative throw pillows. Soft and comfortable with removable covers. Perfect for sofa or bed decoration.",
-            "price": 39.99,
-            "category_id": categories["home-garden"].id,
-            "image_url": "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400"
-        },
-        {
-            "name": "Garden Tool Kit",
-            "description": "Complete garden tool kit with 10 essential tools. Durable stainless steel construction. Includes carrying bag for easy storage.",
-            "price": 79.99,
-            "category_id": categories["home-garden"].id,
-            "image_url": "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400"
-        },
+        # Офисные принадлежности
+        {"name": "Степлер №24/6", "description": "Металлический степлер до 20 листов, скобы 24/6.", "price": 410, "brand": "KW-trio", "sku": "KW-24-6", "unit": "шт", "pack_qty": 1, "category_id": categories["ofisnye"].id, "image_url": "https://images.unsplash.com/photo-1612599316791-451087c7ff00?w=400"},
+        {"name": "Папка-регистратор 75 мм", "description": "Архивная папка с арочным механизмом, ламинированный картон.", "price": 320, "brand": "Brauberg", "sku": "BRG-REG-75", "unit": "шт", "pack_qty": 1, "category_id": categories["ofisnye"].id, "image_url": "https://images.unsplash.com/photo-1568667256549-094345857637?w=400"},
+        {"name": "Скрепки канцелярские 28 мм", "description": "Металлические скрепки, никелированные, 100 шт. в упаковке.", "price": 55, "brand": "ErichKrause", "sku": "EK-SKR-100", "unit": "упаковка", "pack_qty": 100, "category_id": categories["ofisnye"].id, "image_url": "https://images.unsplash.com/photo-1456735190827-d1262f71b8a3?w=400"},
+        {"name": "Лоток для бумаг горизонтальный", "description": "Пластиковый лоток-сетка для документов, штабелируемый.", "price": 260, "brand": "Brauberg", "sku": "BRG-LOT-H", "unit": "шт", "pack_qty": 1, "category_id": categories["ofisnye"].id, "image_url": "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=400"},
+        {"name": "Файлы-вкладыши А4 100 шт.", "description": "Перфорированные прозрачные файлы, плотность 35 мкм.", "price": 240, "brand": "ErichKrause", "sku": "EK-FL-100", "unit": "упаковка", "pack_qty": 100, "category_id": categories["ofisnye"].id, "image_url": "https://images.unsplash.com/photo-1583521214690-73421a1829a9?w=400"},
+
+        # Рисование и творчество
+        {"name": "Краски акварельные 24 цв.", "description": "Медовая акварель 24 цвета с кистью, яркие пигменты.", "price": 210, "brand": "Гамма", "sku": "GAM-AQ-24", "unit": "шт", "pack_qty": 1, "category_id": categories["tvorchestvo"].id, "image_url": "https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=400"},
+        {"name": "Пластилин 12 цветов", "description": "Мягкий пластилин, не липнет к рукам, стек в комплекте.", "price": 150, "brand": "Луч", "sku": "LUCH-PL-12", "unit": "упаковка", "pack_qty": 12, "category_id": categories["tvorchestvo"].id, "image_url": "https://images.unsplash.com/photo-1499744937866-d7e566a20a61?w=400"},
+        {"name": "Цветная бумага А4 16 цв.", "description": "Двусторонняя цветная бумага, 16 листов, для аппликаций.", "price": 110, "brand": "Hatber", "sku": "HAT-CB-16", "unit": "упаковка", "pack_qty": 16, "category_id": categories["tvorchestvo"].id, "image_url": "https://images.unsplash.com/photo-1502691876148-a84978e59af8?w=400"},
+        {"name": "Кисти художественные набор 5 шт.", "description": "Синтетические кисти разных размеров для красок.", "price": 175, "brand": "Гамма", "sku": "GAM-KS-5", "unit": "упаковка", "pack_qty": 5, "category_id": categories["tvorchestvo"].id, "image_url": "https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?w=400"},
     ]
 
     for product_data in products_data:
