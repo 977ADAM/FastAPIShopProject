@@ -9,7 +9,8 @@ FastAPI Shop — full-stack e-commerce demo.
   (`Mapped`/`mapped_column`), Pydantic v2, Alembic migrations, JWT admin auth (single admin from
   env), slowapi rate-limit on login, image upload. PostgreSQL in Docker, **SQLite for local dev/tests**.
 - **frontend/** — Vue 3 (`<script setup>`), Vite, Pinia, Vue Router, Tailwind CSS v4. Storefront
-  + `/admin` (JWT, router-guard). Visual style: brutalist "EMPIRE" (beige+red, Archivo/Space Mono).
+  + `/admin` (JWT, router-guard). Visual style: clean "warm school" stationery storefront ("Канцелярия №1")
+  — cream + navy + yellow, Rubik font, fully Russian-language with prices in ₽.
 
 ## Tooling — non-obvious
 
@@ -43,10 +44,14 @@ E2E needs a running, seeded backend — unit tests (Vitest/pytest) do not (pytes
 
 ## Frontend design system
 
-- Tokens live in `frontend/src/assets/main.css` `@theme`: `--color-bg #e7e7e2`, `--color-surface`,
-  `--color-ink #111`, `--color-accent #e11d2e`, `--color-border`, `--color-muted`, plus `--font-sans`
-  (Archivo), `--font-black` (Archivo Black), `--font-mono` (Space Mono). Use Tailwind utilities like
-  `bg-ink`, `text-accent`, `font-mono`, `.placeholder-hatch`.
+- Tokens live in `frontend/src/assets/main.css` `@theme`: `--color-bg #f7f1e3` (cream), `--color-surface #ffffff`,
+  `--color-ink #1f2a44` (navy), `--color-accent #f0b429` (yellow), `--color-accent-ink #1f2a44`,
+  `--color-sale #d64545`, `--color-border #e7ddc7`, `--color-muted #8a7f63`, plus `--font-sans` (Rubik).
+  Single font (Rubik) — soft rounded shapes (`rounded-xl`), thin borders, light shadows. **Yellow accent rule:**
+  `bg-accent` must always pair with `text-ink` (never white on yellow). Use Tailwind utilities like `bg-accent`,
+  `text-ink`, `text-accent`.
+- Prices render via `formatPrice` helper (`frontend/src/utils/format.js`) → e.g. `89 ₽` / `1 250 ₽` (whole rubles,
+  space-grouped, trailing ₽).
 - Global UI state (cart drawer + toast) is the **ui store** (`stores/ui.js`): `openCart/closeCart/cartOpen`,
   `showToast/toast`. Cart logic stays in `stores/cart.js`. Add-to-cart → `cart.addToCart(id, qty)` then
   `ui.showToast(...)`.
