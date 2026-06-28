@@ -33,7 +33,7 @@
   background: repeating-linear-gradient(45deg, #efe7d3 0 12px, #e7ddc7 12px 24px);
 }
 
-/* Brutalist marquee animation */
+/* Marquee animation */
 @keyframes marquee {
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }

@@ -1,7 +1,7 @@
 <template>
   <div class="flex min-h-screen items-center justify-center bg-bg px-4 py-16">
     <form
-      class="flex w-80 flex-col gap-5 border-2 border-ink bg-white p-8"
+      class="flex w-80 flex-col gap-5 rounded-lg border border-border bg-white p-8"
       @submit.prevent="onSubmit"
     >
       <h1 class="font-extrabold text-2xl uppercase tracking-tight">ADMIN</h1>
@@ -13,7 +13,7 @@
           type="text"
           autocomplete="username"
           required
-          class="border border-ink px-3 py-2 font-sans text-sm text-ink focus:outline-none"
+          class="rounded-lg border border-border px-3 py-2 font-sans text-sm text-ink focus:outline-none"
         />
       </label>
 
@@ -24,7 +24,7 @@
           type="password"
           autocomplete="current-password"
           required
-          class="border border-ink px-3 py-2 font-sans text-sm text-ink focus:outline-none"
+          class="rounded-lg border border-border px-3 py-2 font-sans text-sm text-ink focus:outline-none"
         />
       </label>
 

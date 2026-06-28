@@ -25,7 +25,7 @@
             v-model="form.name"
             required
             minlength="5"
-            class="border border-ink px-3 py-2 font-sans text-sm text-ink focus:outline-none"
+            class="rounded-lg border border-border px-3 py-2 font-sans text-sm text-ink focus:outline-none"
           />
         </label>
         <label class="flex flex-col gap-1 font-sans text-xs uppercase tracking-wide text-muted">
@@ -33,7 +33,7 @@
           <textarea
             v-model="form.description"
             rows="2"
-            class="border border-ink px-3 py-2 font-sans text-sm text-ink focus:outline-none"
+            class="rounded-lg border border-border px-3 py-2 font-sans text-sm text-ink focus:outline-none"
           />
         </label>
         <label class="flex flex-col gap-1 font-sans text-xs uppercase tracking-wide text-muted">
@@ -44,7 +44,7 @@
             step="0.01"
             min="0.01"
             required
-            class="border border-ink px-3 py-2 font-sans text-sm text-ink focus:outline-none"
+            class="rounded-lg border border-border px-3 py-2 font-sans text-sm text-ink focus:outline-none"
           />
         </label>
         <label class="flex flex-col gap-1 font-sans text-xs font-bold uppercase tracking-wide text-muted">
@@ -53,7 +53,7 @@
             v-model.number="form.stock"
             type="number"
             min="0"
-            class="border border-ink px-3 py-2 font-sans text-sm text-ink focus:outline-none"
+            class="rounded-lg border border-border px-3 py-2 font-sans text-sm text-ink focus:outline-none"
           />
         </label>
         <label class="flex flex-col gap-1 font-sans text-xs font-bold uppercase tracking-wide text-muted">
@@ -61,7 +61,7 @@
           <input
             v-model="form.brand"
             placeholder="Бренд"
-            class="border border-ink px-3 py-2 font-sans text-sm text-ink focus:outline-none"
+            class="rounded-lg border border-border px-3 py-2 font-sans text-sm text-ink focus:outline-none"
           />
         </label>
         <label class="flex flex-col gap-1 font-sans text-xs font-bold uppercase tracking-wide text-muted">
@@ -69,14 +69,14 @@
           <input
             v-model="form.sku"
             placeholder="Артикул"
-            class="border border-ink px-3 py-2 font-sans text-sm text-ink focus:outline-none"
+            class="rounded-lg border border-border px-3 py-2 font-sans text-sm text-ink focus:outline-none"
           />
         </label>
         <label class="flex flex-col gap-1 font-sans text-xs font-bold uppercase tracking-wide text-muted">
           Единица
           <select
             v-model="form.unit"
-            class="border border-ink px-3 py-2 font-sans text-sm text-ink focus:outline-none"
+            class="rounded-lg border border-border px-3 py-2 font-sans text-sm text-ink focus:outline-none"
           >
             <option value="шт">шт</option>
             <option value="упаковка">упаковка</option>
@@ -89,7 +89,7 @@
             type="number"
             min="1"
             placeholder="В упаковке"
-            class="border border-ink px-3 py-2 font-sans text-sm text-ink focus:outline-none"
+            class="rounded-lg border border-border px-3 py-2 font-sans text-sm text-ink focus:outline-none"
           />
         </label>
         <label class="flex flex-col gap-1 font-sans text-xs font-bold uppercase tracking-wide text-muted">
@@ -97,7 +97,7 @@
           <select
             v-model.number="form.category_id"
             required
-            class="border border-ink px-3 py-2 font-sans text-sm text-ink focus:outline-none"
+            class="rounded-lg border border-border px-3 py-2 font-sans text-sm text-ink focus:outline-none"
           >
             <option :value="null" disabled>— выберите —</option>
             <option v-for="c in categories" :key="c.id" :value="c.id">{{ c.name }}</option>
@@ -109,7 +109,7 @@
           <input
             type="file"
             accept="image/*"
-            class="border border-ink px-3 py-2 font-sans text-sm text-ink focus:outline-none"
+            class="rounded-lg border border-border px-3 py-2 font-sans text-sm text-ink focus:outline-none"
             @change="onFileChange"
           />
         </label>
@@ -132,7 +132,7 @@
           <button
             v-if="editingId"
             type="button"
-            class="emp-press cursor-pointer border border-ink px-4 py-2 font-sans text-xs uppercase tracking-wide text-ink"
+            class="emp-press cursor-pointer rounded-lg border border-border px-4 py-2 font-sans text-xs uppercase tracking-wide text-ink"
             @click="resetForm"
           >
             Отмена
@@ -149,7 +149,7 @@
             v-model="categoryForm.name"
             required
             minlength="5"
-            class="border border-ink px-3 py-2 font-sans text-sm text-ink focus:outline-none"
+            class="rounded-lg border border-border px-3 py-2 font-sans text-sm text-ink focus:outline-none"
           />
         </label>
         <label class="flex flex-col gap-1 font-sans text-xs uppercase tracking-wide text-muted">
@@ -158,7 +158,7 @@
             v-model="categoryForm.slug"
             required
             minlength="5"
-            class="border border-ink px-3 py-2 font-sans text-sm text-ink focus:outline-none"
+            class="rounded-lg border border-border px-3 py-2 font-sans text-sm text-ink focus:outline-none"
           />
         </label>
         <button
@@ -314,6 +314,8 @@ async function onSubmit() {
   error.value = null
   try {
     const payload = { ...form }
+    payload.brand = payload.brand || null
+    payload.sku = payload.sku || null
     if (editingId.value) {
       await productsAPI.update(editingId.value, payload)
     } else {

@@ -32,9 +32,9 @@
 
         <div class="mt-7 font-sans text-[11px] font-bold tracking-wide text-ink">Количество</div>
         <div class="mt-2.5 flex items-center gap-3">
-          <button class="flex h-10 w-10 items-center justify-center border border-ink font-sans" @click="qty = Math.max(1, qty - 1)">−</button>
+          <button class="flex h-10 w-10 items-center justify-center rounded-lg border border-ink/20 font-sans" @click="qty = Math.max(1, qty - 1)">−</button>
           <span class="min-w-6 text-center font-sans">{{ qty }}</span>
-          <button class="flex h-10 w-10 items-center justify-center border border-ink font-sans" @click="qty++">+</button>
+          <button class="flex h-10 w-10 items-center justify-center rounded-lg border border-ink/20 font-sans" @click="qty++">+</button>
         </div>
 
         <div class="mt-7 flex gap-3">

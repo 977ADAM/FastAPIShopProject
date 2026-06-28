@@ -32,9 +32,9 @@
             <div class="min-w-0 flex-1">
               <div class="font-sans font-bold text-sm uppercase text-ink">{{ item.name }}</div>
               <div class="mt-2 flex items-center gap-2.5 font-sans text-sm">
-                <button class="flex h-6 w-6 items-center justify-center border border-ink text-ink" @click="cart.updateQuantity(item.product_id, item.quantity - 1)">−</button>
+                <button class="flex h-6 w-6 items-center justify-center rounded border border-ink/20 text-ink" @click="cart.updateQuantity(item.product_id, item.quantity - 1)">−</button>
                 <span class="min-w-4 text-center text-ink">{{ item.quantity }}</span>
-                <button class="flex h-6 w-6 items-center justify-center border border-ink text-ink" @click="cart.updateQuantity(item.product_id, item.quantity + 1)">+</button>
+                <button class="flex h-6 w-6 items-center justify-center rounded border border-ink/20 text-ink" @click="cart.updateQuantity(item.product_id, item.quantity + 1)">+</button>
                 <button class="ml-1.5 font-sans text-[10px] font-medium tracking-wide text-muted underline" @click="cart.removeFromCart(item.product_id)">Удалить</button>
               </div>
             </div>

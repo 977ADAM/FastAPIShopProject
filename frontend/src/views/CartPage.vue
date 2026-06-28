@@ -24,7 +24,7 @@
         />
       </div>
 
-      <aside class="h-fit border-2 border-ink bg-surface p-7">
+      <aside class="h-fit rounded-xl border border-border bg-surface p-7">
         <h2 class="font-sans font-extrabold text-xl uppercase tracking-tight text-ink">Сумма заказа</h2>
         <div class="mt-6 flex items-baseline justify-between">
           <span class="font-sans text-xs font-medium tracking-wide text-muted">Итого</span>
@@ -40,7 +40,7 @@
         </button>
         <button
           type="button"
-          class="mt-3 w-full cursor-pointer border border-ink py-3 font-sans text-xs font-medium tracking-wide text-ink"
+          class="mt-3 w-full cursor-pointer border border-border py-3 font-sans text-xs font-medium tracking-wide text-ink rounded"
           @click="handleClearCart"
         >
           Очистить корзину
