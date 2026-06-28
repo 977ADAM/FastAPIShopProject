@@ -13,15 +13,25 @@ export const useProductsStore = defineStore('products', () => {
   const products = ref([])
   const categories = ref([])
   const selectedCategory = ref(null)
+  const searchTerm = ref('')
   const loading = ref(false)
   const error = ref(null)
 
   // Getters
   const filteredProducts = computed(() => {
-    if (!selectedCategory.value) {
-      return products.value
+    let list = products.value
+    if (selectedCategory.value) {
+      list = list.filter((product) => product.category_id === selectedCategory.value)
     }
-    return products.value.filter((product) => product.category_id === selectedCategory.value)
+    const q = searchTerm.value.trim().toLowerCase()
+    if (q) {
+      list = list.filter((product) =>
+        [product.name, product.brand, product.sku]
+          .filter(Boolean)
+          .some((field) => field.toLowerCase().includes(q)),
+      )
+    }
+    return list
   })
 
   const productsCount = computed(() => filteredProducts.value.length)
@@ -88,11 +98,19 @@ export const useProductsStore = defineStore('products', () => {
     selectedCategory.value = null
   }
 
+  /**
+   * Установить поисковый запрос (фильтрует по названию, бренду и артикулу)
+   */
+  function setSearch(term) {
+    searchTerm.value = term ?? ''
+  }
+
   return {
     // State
     products,
     categories,
     selectedCategory,
+    searchTerm,
     loading,
     error,
     // Getters
@@ -104,5 +122,6 @@ export const useProductsStore = defineStore('products', () => {
     fetchCategories,
     setCategory,
     clearCategoryFilter,
+    setSearch,
   }
 })

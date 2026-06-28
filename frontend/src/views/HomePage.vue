@@ -48,6 +48,9 @@
       </div>
 
       <p v-if="store.loading" class="font-sans text-sm text-muted">Загрузка…</p>
+      <p v-else-if="!store.filteredProducts.length" class="font-sans text-sm text-muted">
+        Ничего не найдено.
+      </p>
       <div v-else class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
         <ProductCard v-for="p in store.filteredProducts" :key="p.id" :product="p" />
       </div>
