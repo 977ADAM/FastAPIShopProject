@@ -7,7 +7,7 @@ from typing_extensions import Annotated
 
 
 class Settings(BaseSettings):
-    app_name: str = "FastAPI Shop"
+    app_name: str = "Канцелярия №1"
     debug: bool = True
     database_url: str = "sqlite:///./shop.db"
     # NoDecode disables pydantic-settings' automatic JSON decoding so the raw

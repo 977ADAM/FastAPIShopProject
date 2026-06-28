@@ -15,6 +15,10 @@ class ProductRepository:
         query = self.db.query(Product)
         if search:
             like = f"%{search}%"
+            # ilike is Unicode case-insensitive on PostgreSQL (production).
+            # On SQLite (local/dev) LIKE folds case for ASCII only, so a
+            # lowercase Cyrillic query won't match a capitalised name there;
+            # the storefront filters client-side, which handles this.
             query = query.filter(
                 or_(
                     Product.name.ilike(like),
