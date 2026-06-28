@@ -23,7 +23,9 @@ def get_products(
     db: Session = Depends(get_db),
     limit: Optional[int] = Query(None, ge=1, le=100, description="Page size"),
     offset: int = Query(0, ge=0, description="Items to skip"),
-    search: Optional[str] = Query(None, description="Search by product name"),
+    search: Optional[str] = Query(
+        None, description="Search by product name, brand or SKU"
+    ),
 ):
     service = ProductService(db)
     return service.get_all_products(limit=limit, offset=offset, search=search)

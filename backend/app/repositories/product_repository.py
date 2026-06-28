@@ -1,5 +1,6 @@
 from typing import List, Optional
 
+from sqlalchemy import or_
 from sqlalchemy.orm import Session, joinedload
 
 from ..models.product import Product
@@ -13,7 +14,18 @@ class ProductRepository:
     def _filtered_query(self, search: Optional[str] = None):
         query = self.db.query(Product)
         if search:
-            query = query.filter(Product.name.ilike(f"%{search}%"))
+            like = f"%{search}%"
+            # ilike is Unicode case-insensitive on PostgreSQL (production).
+            # On SQLite (local/dev) LIKE folds case for ASCII only, so a
+            # lowercase Cyrillic query won't match a capitalised name there;
+            # the storefront filters client-side, which handles this.
+            query = query.filter(
+                or_(
+                    Product.name.ilike(like),
+                    Product.brand.ilike(like),
+                    Product.sku.ilike(like),
+                )
+            )
         return query
 
     def get_all(
