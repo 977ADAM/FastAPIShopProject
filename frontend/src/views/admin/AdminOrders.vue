@@ -1,8 +1,8 @@
 <template>
   <div class="mx-auto min-h-screen max-w-[1000px] bg-bg px-4 py-6">
     <header class="mb-4 flex items-center justify-between">
-      <h1 class="font-black text-2xl uppercase tracking-tight">Админка — заказы</h1>
-      <nav class="flex items-center gap-4 font-mono text-xs uppercase tracking-wide">
+      <h1 class="font-extrabold text-2xl uppercase tracking-tight">Админка — заказы</h1>
+      <nav class="flex items-center gap-4 font-sans text-xs uppercase tracking-wide">
         <router-link to="/admin" class="text-ink hover:text-accent">Товары</router-link>
         <button type="button" class="cursor-pointer text-ink hover:text-accent" @click="onLogout">
           Выйти
@@ -10,12 +10,12 @@
       </nav>
     </header>
 
-    <p v-if="error" class="font-mono text-xs text-accent">{{ error }}</p>
-    <p v-if="loading" class="font-mono text-xs text-muted">Загрузка…</p>
+    <p v-if="error" class="font-sans text-xs text-accent">{{ error }}</p>
+    <p v-if="loading" class="font-sans text-xs text-muted">Загрузка…</p>
 
     <table v-else class="w-full border-collapse border border-border bg-white">
       <thead>
-        <tr class="border-b border-ink font-mono text-xs uppercase tracking-wide text-muted">
+        <tr class="border-b border-ink font-sans text-xs uppercase tracking-wide text-muted">
           <th class="px-3 py-2 text-left">ID</th>
           <th class="px-3 py-2 text-left">Покупатель</th>
           <th class="px-3 py-2 text-left">Email</th>
@@ -29,12 +29,12 @@
           <td class="px-3 py-2">{{ o.id }}</td>
           <td class="px-3 py-2">{{ o.customer_name }}</td>
           <td class="px-3 py-2">{{ o.customer_email }}</td>
-          <td class="px-3 py-2 font-mono">${{ o.total.toFixed(2) }}</td>
+          <td class="px-3 py-2 font-sans">{{ formatPrice(o.total) }}</td>
           <td class="px-3 py-2">
             <span
               v-for="it in o.items"
               :key="it.product_id"
-              class="mr-2 inline-block font-mono text-xs text-muted"
+              class="mr-2 inline-block font-sans text-xs text-muted"
             >
               {{ it.product_name }} ×{{ it.quantity }}
             </span>
@@ -42,7 +42,7 @@
           <td class="px-3 py-2">
             <select
               :value="o.status"
-              class="border border-ink px-2 py-1 font-mono text-xs focus:outline-none"
+              class="border border-ink px-2 py-1 font-sans text-xs focus:outline-none"
               :class="{
                 'text-muted': o.status === 'pending',
                 'text-ink': o.status === 'paid' || o.status === 'shipped',
@@ -56,7 +56,7 @@
           </td>
         </tr>
         <tr v-if="!orders.length">
-          <td colspan="6" class="px-3 py-6 text-center font-mono text-sm text-muted">
+          <td colspan="6" class="px-3 py-6 text-center font-sans text-sm text-muted">
             Заказов пока нет
           </td>
         </tr>
@@ -70,6 +70,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ordersAPI } from '@/services/api'
 import { useAuthStore } from '@/stores/auth'
+import { formatPrice } from '@/utils/format'
 
 const auth = useAuthStore()
 const router = useRouter()
