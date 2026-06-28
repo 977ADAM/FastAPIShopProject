@@ -1,6 +1,12 @@
 # FastAPI Shop
 
-Полнофункциональный интернет-магазин: **FastAPI** (backend) + **Vue 3** (frontend), упакованный в Docker с Nginx и автоматическим выпуском SSL-сертификатов через Let's Encrypt.
+Полнофункциональный интернет-магазин канцелярии — **«Канцелярия №1»**, всё для
+школы и офиса: **FastAPI** (backend) + **Vue 3** (frontend), упакованный в Docker
+с Nginx и автоматическим выпуском SSL-сертификатов через Let's Encrypt.
+
+Витрина на русском языке, цены в ₽. Визуальный стиль — чистый «warm school»
+(шрифт Rubik; бежевый + тёмно-синий + жёлтый). Товары канцелярии несут поля
+`brand` / `sku` / `unit` / `pack_qty`.
 
 ## Стек технологий
 
@@ -181,7 +187,7 @@ GitHub Actions (`.github/workflows/ci.yml`) на каждый push/PR в `main`:
 
 | Метод | Путь | Доступ | Описание |
 |-------|------|--------|----------|
-| `GET` | `/api/products` | публично | Список товаров (`?limit=&offset=&search=`) |
+| `GET` | `/api/products` | публично | Список товаров (`?limit=&offset=&search=`; поиск по названию, бренду или артикулу) |
 | `GET` | `/api/products/{product_id}` | публично | Товар по ID |
 | `GET` | `/api/products/category/{category_id}` | публично | Товары по категории |
 | `POST` | `/api/products` | админ | Создать товар |
