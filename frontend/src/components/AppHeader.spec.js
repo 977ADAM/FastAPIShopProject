@@ -29,6 +29,18 @@ describe('AppHeader', () => {
     expect(products.searchTerm).toBe('степлер')
   })
 
+  it('mobile search toggle reveals an input that updates the store', async () => {
+    const wrapper = mountHeader()
+    const products = useProductsStore()
+    // Hidden until toggled.
+    expect(wrapper.find('[data-test="search-mobile"]').exists()).toBe(false)
+    await wrapper.find('[data-test="open-mobile-search"]').trigger('click')
+    const mobileInput = wrapper.find('[data-test="search-mobile"]')
+    expect(mobileInput.exists()).toBe(true)
+    await mobileInput.setValue('ручка')
+    expect(products.searchTerm).toBe('ручка')
+  })
+
   it('the bag button opens the cart drawer', async () => {
     const wrapper = mountHeader()
     const ui = useUiStore()
