@@ -30,14 +30,31 @@
           <span class="font-sans text-xs font-medium tracking-wide text-muted">Итого</span>
           <span class="font-sans font-extrabold text-2xl text-ink">{{ formatPrice(cartStore.totalPrice) }}</span>
         </div>
-        <button
-          type="button"
-          data-test="checkout"
-          class="emp-press mt-6 w-full cursor-pointer bg-accent py-4 font-sans text-sm font-bold tracking-wide text-ink"
-          @click="handleCheckout"
-        >
-          Оформить заказ →
-        </button>
+        <form class="mt-6 flex flex-col gap-3" @submit.prevent="handleCheckout">
+          <input
+            v-model="customerName"
+            data-test="checkout-name"
+            type="text"
+            placeholder="Ваше имя"
+            class="rounded-lg border border-border bg-bg px-3 py-2 font-sans text-sm text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent"
+          />
+          <input
+            v-model="customerEmail"
+            data-test="checkout-email"
+            type="email"
+            placeholder="Email для подтверждения"
+            class="rounded-lg border border-border bg-bg px-3 py-2 font-sans text-sm text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent"
+          />
+          <p v-if="formError" data-test="checkout-error" class="font-sans text-xs text-sale">{{ formError }}</p>
+          <button
+            type="submit"
+            data-test="checkout"
+            :disabled="!canSubmit || submitting"
+            class="emp-press w-full bg-accent py-4 font-sans text-sm font-bold tracking-wide text-ink disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {{ submitting ? 'Оформляем…' : 'Оформить заказ →' }}
+          </button>
+        </form>
         <button
           type="button"
           class="mt-3 w-full cursor-pointer border border-border py-3 font-sans text-xs font-medium tracking-wide text-ink rounded"
@@ -51,7 +68,7 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useCartStore } from '@/stores/cart'
 import { formatPrice } from '@/utils/format'
@@ -60,28 +77,37 @@ import CartItem from '@/components/CartItem.vue'
 
 const cartStore = useCartStore()
 
+const customerName = ref('')
+const customerEmail = ref('')
+const submitting = ref(false)
+const formError = ref('')
+
+const canSubmit = computed(
+  () => customerName.value.trim().length >= 2 && isValidEmail(customerEmail.value),
+)
+
 /**
- * Оформление заказа.
- * Минимальный сбор данных покупателя; полноценная форма — в редизайне.
+ * Оформление заказа из формы (имя + email с инлайн-валидацией).
  */
 async function handleCheckout() {
-  if (!cartStore.hasItems) return
-  const name = window.prompt('Ваше имя:')
-  if (!name) return
-  const email = window.prompt('Ваш email:')
-  if (!email) return
-  if (!isValidEmail(email)) {
-    alert('Введите корректный email, например name@example.com')
-    return
-  }
+  if (!cartStore.hasItems || !canSubmit.value || submitting.value) return
+  submitting.value = true
+  formError.value = ''
   try {
-    const order = await cartStore.checkout({ name, email })
+    const order = await cartStore.checkout({
+      name: customerName.value.trim(),
+      email: customerEmail.value.trim(),
+    })
     alert(`Заказ #${order.id} оформлен! Сумма: ${formatPrice(order.total)}`)
+    customerName.value = ''
+    customerEmail.value = ''
   } catch (err) {
-    // 4xx from the API may carry a string detail (e.g. out of stock) or, for
-    // 422 validation errors, an array — only show strings to the user.
+    // 4xx may carry a string detail (e.g. out of stock); 422 carries an array.
     const detail = err.response?.data?.detail
-    alert(typeof detail === 'string' ? detail : 'Не удалось оформить заказ. Проверьте данные.')
+    formError.value =
+      typeof detail === 'string' ? detail : 'Не удалось оформить заказ. Проверьте данные.'
+  } finally {
+    submitting.value = false
   }
 }
 
