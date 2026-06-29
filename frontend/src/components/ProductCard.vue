@@ -3,6 +3,9 @@
     <RouterLink :to="`/product/${product.id}`" class="block">
       <div class="placeholder-hatch relative flex h-[300px] items-center justify-center overflow-hidden">
         <img v-if="product.image_url" :src="product.image_url" :alt="product.name" class="h-full w-full object-cover" />
+        <span v-if="!inStock" class="absolute left-2 top-2 rounded bg-ink/80 px-2 py-0.5 font-sans text-[10px] font-semibold uppercase tracking-wide text-white">
+          Нет в наличии
+        </span>
       </div>
     </RouterLink>
     <div class="flex items-start justify-between p-4">
@@ -19,15 +22,18 @@
     <button
       type="button"
       data-test="add-to-cart"
-      class="emp-add w-full cursor-pointer bg-ink py-3 text-center text-xs font-semibold tracking-wide text-white"
+      :disabled="!inStock"
+      class="emp-add w-full py-3 text-center text-xs font-semibold tracking-wide"
+      :class="inStock ? 'cursor-pointer bg-ink text-white' : 'cursor-not-allowed bg-border text-muted'"
       @click="onAdd"
     >
-      В КОРЗИНУ +
+      {{ inStock ? 'В КОРЗИНУ +' : 'НЕТ В НАЛИЧИИ' }}
     </button>
   </div>
 </template>
 
 <script setup>
+import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useCartStore } from '@/stores/cart'
 import { useUiStore } from '@/stores/ui'
@@ -37,7 +43,10 @@ const props = defineProps({ product: { type: Object, required: true } })
 const cart = useCartStore()
 const ui = useUiStore()
 
+const inStock = computed(() => (props.product.stock ?? 0) > 0)
+
 async function onAdd() {
+  if (!inStock.value) return
   const ok = await cart.addToCart(props.product.id, 1)
   if (ok) ui.showToast('Добавлено в корзину')
 }
@@ -46,5 +55,5 @@ async function onAdd() {
 <style scoped>
 .emp-card { transition: transform 0.25s ease, box-shadow 0.25s ease; }
 .emp-card:hover { transform: translateY(-6px); box-shadow: 0 14px 30px rgba(31, 42, 68, 0.12); }
-.emp-card:hover .emp-add { background: var(--color-accent); color: var(--color-ink); }
+.emp-card:hover .emp-add:not(:disabled) { background: var(--color-accent); color: var(--color-ink); }
 </style>
