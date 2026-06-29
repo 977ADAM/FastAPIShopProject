@@ -38,11 +38,14 @@
 
     <!-- CATALOG -->
     <section id="catalog" class="mx-auto max-w-[1440px] px-6 pb-16 pt-8 md:px-12">
-      <div class="mb-6 flex items-baseline justify-between">
+      <div class="mb-6 flex items-baseline justify-between gap-4">
         <h2 class="m-0 font-sans font-extrabold text-3xl uppercase tracking-tight">
-          {{ store.selectedCategory ? activeCategoryName : 'Хиты продаж' }}
+          {{ headingText }}
         </h2>
-        <button v-if="store.selectedCategory" class="font-sans text-xs font-semibold tracking-wide text-ink underline decoration-accent decoration-2" @click="store.clearCategoryFilter()">
+        <span v-if="isSearching" class="shrink-0 font-sans text-xs font-semibold tracking-wide text-muted">
+          Найдено: {{ store.filteredProducts.length }}
+        </span>
+        <button v-else-if="store.selectedCategory" class="font-sans text-xs font-semibold tracking-wide text-ink underline decoration-accent decoration-2" @click="store.clearCategoryFilter()">
           ВЕСЬ КАТАЛОГ →
         </button>
       </div>
@@ -70,6 +73,11 @@ const featured = computed(() => store.products[0] ?? null)
 const activeCategoryName = computed(
   () => store.categories.find((c) => c.id === store.selectedCategory)?.name ?? '',
 )
+const isSearching = computed(() => store.searchTerm.trim().length > 0)
+const headingText = computed(() => {
+  if (isSearching.value) return `Поиск: «${store.searchTerm.trim()}»`
+  return store.selectedCategory ? activeCategoryName.value : 'Хиты продаж'
+})
 
 function onSelectCategory(id) {
   store.setCategory(id)
