@@ -51,6 +51,16 @@
       </div>
 
       <p v-if="store.loading" class="font-sans text-sm text-muted">Загрузка…</p>
+      <div v-else-if="store.error" class="flex flex-col items-start gap-3">
+        <p class="font-sans text-sm text-muted">Не удалось загрузить товары. Проверьте соединение.</p>
+        <button
+          type="button"
+          class="rounded-lg bg-accent px-4 py-2 font-sans text-xs font-semibold tracking-wide text-ink"
+          @click="store.fetchProducts()"
+        >
+          Повторить
+        </button>
+      </div>
       <p v-else-if="!store.filteredProducts.length" class="font-sans text-sm text-muted">
         Ничего не найдено.
       </p>
