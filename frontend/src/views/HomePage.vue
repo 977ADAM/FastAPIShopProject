@@ -43,7 +43,7 @@
           {{ headingText }}
         </h2>
         <span v-if="isSearching" class="shrink-0 font-sans text-xs font-semibold tracking-wide text-muted">
-          Найдено: {{ store.filteredProducts.length }}
+          Найдено: {{ store.productsCount }}
         </span>
         <button v-else-if="store.selectedCategory" class="font-sans text-xs font-semibold tracking-wide text-ink underline decoration-accent decoration-2" @click="store.clearCategoryFilter()">
           ВЕСЬ КАТАЛОГ →
