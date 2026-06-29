@@ -55,6 +55,7 @@ import { onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useCartStore } from '@/stores/cart'
 import { formatPrice } from '@/utils/format'
+import { isValidEmail } from '@/utils/validate'
 import CartItem from '@/components/CartItem.vue'
 
 const cartStore = useCartStore()
@@ -69,12 +70,18 @@ async function handleCheckout() {
   if (!name) return
   const email = window.prompt('Ваш email:')
   if (!email) return
+  if (!isValidEmail(email)) {
+    alert('Введите корректный email, например name@example.com')
+    return
+  }
   try {
     const order = await cartStore.checkout({ name, email })
     alert(`Заказ #${order.id} оформлен! Сумма: ${formatPrice(order.total)}`)
   } catch (err) {
-    const detail = err.response?.data?.detail || 'Не удалось оформить заказ'
-    alert(detail)
+    // 4xx from the API may carry a string detail (e.g. out of stock) or, for
+    // 422 validation errors, an array — only show strings to the user.
+    const detail = err.response?.data?.detail
+    alert(typeof detail === 'string' ? detail : 'Не удалось оформить заказ. Проверьте данные.')
   }
 }
 
