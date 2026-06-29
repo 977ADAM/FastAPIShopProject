@@ -1,6 +1,12 @@
 import { setActivePinia, createPinia } from 'pinia'
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { useProductsStore } from '@/stores/products'
+import { productsAPI } from '@/services/api'
+
+vi.mock('@/services/api', () => ({
+  productsAPI: { getAll: vi.fn() },
+  categoriesAPI: { getAll: vi.fn() },
+}))
 
 const sample = [
   { id: 1, name: 'Ручка гелевая Pilot G-2', brand: 'Pilot', sku: 'PIL-G2-BL', category_id: 1 },
@@ -46,5 +52,29 @@ describe('products store search', () => {
     store.setCategory(2)
     store.setSearch('степлер')
     expect(store.filteredProducts.map((p) => p.id)).toEqual([3])
+  })
+})
+
+describe('products store fetch', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    vi.clearAllMocks()
+  })
+
+  it('populates products and clears error on success', async () => {
+    productsAPI.getAll.mockResolvedValueOnce({ data: { products: sample } })
+    const store = useProductsStore()
+    await store.fetchProducts()
+    expect(store.products).toHaveLength(3)
+    expect(store.error).toBeNull()
+    expect(store.loading).toBe(false)
+  })
+
+  it('sets an error and stops loading when the request fails', async () => {
+    productsAPI.getAll.mockRejectedValueOnce(new Error('network down'))
+    const store = useProductsStore()
+    await store.fetchProducts()
+    expect(store.error).toBeTruthy()
+    expect(store.loading).toBe(false)
   })
 })

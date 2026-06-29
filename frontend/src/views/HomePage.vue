@@ -38,16 +38,29 @@
 
     <!-- CATALOG -->
     <section id="catalog" class="mx-auto max-w-[1440px] px-6 pb-16 pt-8 md:px-12">
-      <div class="mb-6 flex items-baseline justify-between">
+      <div class="mb-6 flex items-baseline justify-between gap-4">
         <h2 class="m-0 font-sans font-extrabold text-3xl uppercase tracking-tight">
-          {{ store.selectedCategory ? activeCategoryName : 'Хиты продаж' }}
+          {{ headingText }}
         </h2>
-        <button v-if="store.selectedCategory" class="font-sans text-xs font-semibold tracking-wide text-ink underline decoration-accent decoration-2" @click="store.clearCategoryFilter()">
+        <span v-if="isSearching" class="shrink-0 font-sans text-xs font-semibold tracking-wide text-muted">
+          Найдено: {{ store.productsCount }}
+        </span>
+        <button v-else-if="store.selectedCategory" class="font-sans text-xs font-semibold tracking-wide text-ink underline decoration-accent decoration-2" @click="store.clearCategoryFilter()">
           ВЕСЬ КАТАЛОГ →
         </button>
       </div>
 
       <p v-if="store.loading" class="font-sans text-sm text-muted">Загрузка…</p>
+      <div v-else-if="store.error" class="flex flex-col items-start gap-3">
+        <p class="font-sans text-sm text-muted">Не удалось загрузить товары. Проверьте соединение.</p>
+        <button
+          type="button"
+          class="rounded-lg bg-accent px-4 py-2 font-sans text-xs font-semibold tracking-wide text-ink"
+          @click="store.fetchProducts()"
+        >
+          Повторить
+        </button>
+      </div>
       <p v-else-if="!store.filteredProducts.length" class="font-sans text-sm text-muted">
         Ничего не найдено.
       </p>
@@ -70,6 +83,11 @@ const featured = computed(() => store.products[0] ?? null)
 const activeCategoryName = computed(
   () => store.categories.find((c) => c.id === store.selectedCategory)?.name ?? '',
 )
+const isSearching = computed(() => store.searchTerm.trim().length > 0)
+const headingText = computed(() => {
+  if (isSearching.value) return `Поиск: «${store.searchTerm.trim()}»`
+  return store.selectedCategory ? activeCategoryName.value : 'Хиты продаж'
+})
 
 function onSelectCategory(id) {
   store.setCategory(id)

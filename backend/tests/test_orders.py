@@ -76,6 +76,19 @@ def test_create_order_validation(client):
     assert res.status_code == 422  # empty items / too-short name
 
 
+def test_create_order_rejects_invalid_email(client, seeded_db):
+    product_id = seeded_db["product"].id
+    res = client.post(
+        "/api/orders",
+        json={
+            "customer_name": "Иван Петров",
+            "customer_email": "not-an-email",
+            "items": [{"product_id": product_id, "quantity": 1}],
+        },
+    )
+    assert res.status_code == 422
+
+
 # --- Admin order management -------------------------------------------------
 
 def test_list_orders_requires_auth(client):

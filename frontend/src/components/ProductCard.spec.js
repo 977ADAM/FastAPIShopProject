@@ -46,4 +46,22 @@ describe('ProductCard', () => {
     expect(cart.addToCart).toHaveBeenCalledWith(1, 1)
     expect(ui.showToast).toHaveBeenCalled()
   })
+
+  it('disables add and shows a badge when out of stock', async () => {
+    const wrapper = mount(ProductCard, {
+      props: { product: { ...product, stock: 0 } },
+      global: {
+        plugins: [createTestingPinia({ createSpy: vi.fn, stubActions: false })],
+        stubs: { RouterLink: { template: '<a><slot /></a>' } },
+      },
+    })
+    const cart = useCartStore()
+    cart.addToCart = vi.fn()
+    const btn = wrapper.find('[data-test="add-to-cart"]')
+    expect(btn.text()).toContain('НЕТ В НАЛИЧИИ')
+    expect(btn.attributes('disabled')).toBeDefined()
+    expect(wrapper.text()).toContain('Нет в наличии')
+    await btn.trigger('click')
+    expect(cart.addToCart).not.toHaveBeenCalled()
+  })
 })

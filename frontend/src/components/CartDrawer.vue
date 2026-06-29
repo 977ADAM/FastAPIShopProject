@@ -7,11 +7,14 @@
     >
       <aside
         data-test="cart-drawer"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Корзина"
         class="flex h-full w-[430px] max-w-[90vw] flex-col bg-surface"
       >
         <div class="flex items-center justify-between border-b border-border px-7 py-6">
           <span class="font-sans font-extrabold text-xl uppercase tracking-tight text-ink">Корзина · {{ cart.itemsCount }}</span>
-          <button type="button" class="cursor-pointer font-sans text-ink" @click="ui.closeCart()">✕</button>
+          <button type="button" aria-label="Закрыть" class="cursor-pointer font-sans text-ink" @click="ui.closeCart()">✕</button>
         </div>
 
         <div class="flex-1 overflow-y-auto px-7">
@@ -62,7 +65,7 @@
 </template>
 
 <script setup>
-import { computed, watch } from 'vue'
+import { computed, watch, onUnmounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useCartStore } from '@/stores/cart'
 import { useUiStore } from '@/stores/ui'
@@ -72,12 +75,23 @@ const cart = useCartStore()
 const ui = useUiStore()
 const items = computed(() => cart.cartDetails?.items ?? [])
 
+function onKeydown(event) {
+  if (event.key === 'Escape') ui.closeCart()
+}
+
 watch(
   () => ui.cartOpen,
   (open) => {
-    if (open) cart.fetchCartDetails()
+    if (open) {
+      cart.fetchCartDetails()
+      document.addEventListener('keydown', onKeydown)
+    } else {
+      document.removeEventListener('keydown', onKeydown)
+    }
   },
 )
+
+onUnmounted(() => document.removeEventListener('keydown', onKeydown))
 </script>
 
 <style scoped>
