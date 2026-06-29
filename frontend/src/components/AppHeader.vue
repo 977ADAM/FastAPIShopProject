@@ -43,6 +43,7 @@
     <!-- Mobile-only expandable search bar -->
     <div v-if="mobileSearchOpen" class="absolute left-0 top-full w-full border-b border-border bg-white px-5 py-3 sm:hidden">
       <input
+        ref="mobileSearchInput"
         :value="products.searchTerm"
         data-test="search-mobile"
         type="search"
@@ -55,18 +56,35 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch, nextTick } from 'vue'
 import { RouterLink, useRouter, useRoute } from 'vue-router'
 import { useCartStore } from '@/stores/cart'
 import { useUiStore } from '@/stores/ui'
 import { useProductsStore } from '@/stores/products'
 
 const mobileSearchOpen = ref(false)
+const mobileSearchInput = ref(null)
 const cart = useCartStore()
 const ui = useUiStore()
 const products = useProductsStore()
 const router = useRouter()
 const route = useRoute()
+
+// Focus the field as soon as the mobile search opens.
+watch(mobileSearchOpen, async (open) => {
+  if (open) {
+    await nextTick()
+    mobileSearchInput.value?.focus()
+  }
+})
+
+// Don't leave the mobile search bar hanging open after navigating away.
+watch(
+  () => route.fullPath,
+  () => {
+    mobileSearchOpen.value = false
+  },
+)
 
 function onSearch(event) {
   products.setSearch(event.target.value)
