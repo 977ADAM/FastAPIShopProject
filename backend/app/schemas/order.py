@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import List
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
 class OrderItemCreate(BaseModel):
@@ -11,7 +11,7 @@ class OrderItemCreate(BaseModel):
 
 class OrderCreate(BaseModel):
     customer_name: str = Field(..., min_length=2, max_length=200)
-    customer_email: str = Field(..., min_length=5, max_length=320)
+    customer_email: EmailStr = Field(..., max_length=320)
     items: List[OrderItemCreate] = Field(..., min_length=1)
 
 
